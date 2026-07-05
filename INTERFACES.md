@@ -1,67 +1,108 @@
-You — Algorithm side
+# a-maze-ing — Interfaces & Work Split
 
-MazeGenerator class: recursive backtracker, wall coherence, corridor-width (no 3x3 open) check, 42-pattern injection, seed handling
-BFS solver (shortest path + direction-string encoding) — this is algorithmic too, so it stays with you rather than getting bolted onto the parsing side
-Packaging (mazegen-*.whl) — natural fit since it's your module being packaged
+This document is the contract between the two of us. Sign off on it before writing generation or parsing code — it's what prevents silent breakage at integration time.
 
-Partner — Parsing/IO side
+## Role Split
 
-Config file parsing + validation (mandatory keys, error handling, bad syntax)
-Output file writer (hex grid + entry/exit/path formatting)
-ASCII display + interactive menu (regen/show-path/colors)
+| | You — Algorithm side | Partner — Parsing/IO side |
+|---|---|---|
+| Core work | `MazeGenerator` class: recursive backtracker, wall coherence, corridor-width check (no 3×3 open areas), 42-pattern injection, seed handling | Config file parsing + validation (mandatory keys, error handling, bad syntax) |
+| Also owns | BFS solver — shortest path + direction-string encoding (stays algorithmic, not bolted onto parsing) | Output file writer (hex grid + entry/exit/path formatting) |
+| Also owns | Packaging (`mazegen-*.whl`) | ASCII display + interactive menu (regenerate / show path / colors) |
 
-This mirrors push_swap almost exactly: your teammate's parsing work in push_swap didn't know how the sort worked, just what valid input looked like and how to hand it off cleanly — same here, your partner doesn't need to know backtracker internals, just what shape of data comes out of your class.
-Where push_swap's split doesn't map perfectly, and why integration is riskier here:
-In push_swap, parsing → algorithm was a one-way handoff (parse args, pass array to sort). Here it's two-way: your generator produces a grid → partner's writer/display consumes it, AND your partner's config values (width, height, entry, exit, seed) feed into your generator. That's two integration seams instead of one, which is exactly where things break silently.
-To de-risk that, before either of you writes generation or parsing code:
+**Analogy:** same split as push_swap — your partner's parsing didn't need to know how the sort worked, just what valid input looked like and how to hand it off. Same here: your partner doesn't need backtracker internals, just the shape of data coming out of `MazeGenerator`.
 
-Freeze the data shapes first. Write down (a shared doc, even just a markdown file in the repo) exactly what a Config object looks like (field names, types) and exactly what get_grid() returns (e.g. list[list[int]], hex 0–15, row-major). Both of you sign off before coding.
-Agree on the MazeGenerator.__init__ signature now, even before it's implemented — your partner's config parser needs to know exactly what arguments to pass.
-Your partner should write against a fake/stub MazeGenerator (returns a hardcoded small grid) for the first day or two, so their parser/writer/display can be built and tested without waiting on your algorithm to be finished. This is the actual fix for the "backloaded integration" problem — decoupling via a stub, not just a written contract.
-Integrate early and often, even a rough version — plug your real generator into their real writer on day 2 or 3 with a tiny 5x5 maze, not day 5 with the full thing. Small integration checks catch shape mismatches while they're still cheap to fix.
+### Why this is riskier than push_swap
 
+push_swap's data flow was one-way: parse args → pass array to sort. Here it's **two-way**:
 
-############################################
+- Your generator produces a grid → partner's writer/display consumes it
+- Partner's config values (width, height, entry, exit, seed) feed **into** your generator
 
+Two integration seams instead of one — exactly where things break silently. The mitigations below exist to de-risk that.
 
-Since you're pre-start, here's what you should nail down together before either of you opens an editor:
-1. The Config shape
-Exact field names and types your partner's parser will produce and hand to your generator. E.g. width: int, height: int, entry: tuple[int,int], exit: tuple[int,int], perfect: bool, seed: int | None, output_file: str. Agree on this now — it's the first handoff point.
-2. The MazeGenerator constructor signature
-What arguments it takes, in what order/by keyword, and what it does on invalid input (raise? return None? print and exit?). This is the second handoff — your partner's code calls into yours.
-3. The grid data format
-list[list[int]], row-major (row = y, col = x, or the reverse — pick one and write it down), hex values 0–15, and which bit maps to which direction (subject already fixes this: bit0=N,1=E,2=S,3=W — just confirm you're both reading it the same way).
-4. The solver output format
-Does solve() return coordinates, or does it return the direction string directly? Decide now so the output writer doesn't have to guess or convert.
-5. Error handling contract
-Who's responsible for catching what. E.g.: parser catches bad config syntax and missing keys; generator raises a specific exception (not a bare crash) if entry==exit or params are impossible; main script catches everything and prints a clean message. Agree who owns which layer of error handling so you don't both write handlers for the same failure or, worse, neither does.
-6. What counts as "done enough to integrate"
-Agree on a checkpoint — e.g. "by day 2, I'll have a generator that returns a valid 5x5 grid even if the 42-pattern isn't in yet; you build your parser/writer against that stub." This is the piece most teams skip, and it's the one that actually prevents the day-5 integration surprise.
-7. Git workflow
-Branch per person, who merges, how often you sync main — trivial to agree on now, painful to figure out mid-project when you're both mid-merge-conflict.
-Write these down somewhere in the repo (even a rough INTERFACES.md, like the one I mentioned from another team's project) — not for the grade, but because it's the actual artifact that keeps you both honest about the contract once you're heads-down in your own half.
+## De-risking Integration
 
-#######################################
+1. **Freeze data shapes first.** Write down the exact `Config` fields/types and exactly what `get_grid()` returns, before either of you codes. Both sign off.
+2. **Agree on `MazeGenerator.__init__` now**, even unimplemented — the config parser needs the exact signature to call into.
+3. **Partner builds against a stub first.** A fake `MazeGenerator` that returns a hardcoded small grid, so parsing/writing/display can be built and tested without waiting on the real algorithm. This is the actual fix for backloaded integration — decoupling via a stub, not just a written contract.
+4. **Integrate early, on a tiny maze.** Plug the real generator into the real writer by day 2–3 with a 5×5 maze — not day 5 with the full thing. Small checks catch shape mismatches while they're cheap to fix.
 
+## The Contract
+
+### 1. Config shape
+
+```python
+width: int
+height: int
+entry: tuple[int, int]
+exit: tuple[int, int]
+perfect: bool
+seed: int | None
+output_file: str
+```
+
+### 2. `MazeGenerator` constructor
+
+- Exact arguments, order/keyword convention — TBD, agree before coding
+- Behavior on invalid input: raise? return `None`? print and exit? — **pick one**
+
+### 3. Grid data format
+
+- `list[list[int]]`, row-major (confirm: row = y, col = x — or the reverse)
+- Hex values `0–15`
+- Bit → direction mapping (subject fixes this): `bit0=N, bit1=E, bit2=S, bit3=W` — confirm both reading it the same way
+
+### 4. Solver output format
+
+- `solve()` returns coordinates, **or** the direction string directly? Decide now so the writer doesn't have to guess or convert.
+
+### 5. Error handling ownership
+
+| Failure | Owner |
+|---|---|
+| Bad config syntax / missing keys | Parser |
+| `entry == exit` / impossible params | Generator (raises a specific exception, not a bare crash) |
+| Everything else | Main script (catches, prints a clean message) |
+
+Agree on this so you don't both write handlers for the same failure — or neither does.
+
+### 6. "Done enough to integrate" checkpoint
+
+Example: *by day 2, generator returns a valid 5×5 grid even without the 42-pattern; partner builds parser/writer against that stub.*
+
+The checkpoint most teams skip — and the one that actually prevents the day-5 integration surprise.
+
+### 7. Git workflow
+
+- Branch per person
+- Who merges, how often `master`/`main` gets synced
+
+Trivial to agree now, painful to sort out mid-merge-conflict.
+
+## Repo Structure
+
+```
 a-maze-ing/
 ├── a_maze_ing.py          # main entrypoint — ties everything together
 ├── config.txt             # default config file (mandatory, must be in repo)
-├── Makefile               # install / run / debug / clean / lint / lint-strict
+├── Makefile                # install / run / debug / clean / lint / lint-strict
 ├── README.md
 ├── .gitignore
-├── pyproject.toml         # build config for the mazegen package
+├── pyproject.toml          # build config for the mazegen package
 │
-├── mazegen/               # YOUR package — the reusable, pip-installable module
-│   ├── __init__.py        # exposes `from mazegen import MazeGenerator`
-│   └── maze_generator.py  # MazeGenerator class: backtracker, 42-pattern, BFS solve
+├── mazegen/                 # YOUR package — reusable, pip-installable
+│   ├── __init__.py          # exposes `from mazegen import MazeGenerator`
+│   └── maze_generator.py    # MazeGenerator class: backtracker, 42-pattern, BFS solve
 │
-├── parsing/                # PARTNER's side
-│   ├── config_parser.py   # reads config.txt -> validated Config object
-│   └── output_writer.py   # writes grid + entry/exit/path to output file
+├── parsing/                 # PARTNER's side
+│   ├── config_parser.py     # reads config.txt -> validated Config object
+│   └── output_writer.py     # writes grid + entry/exit/path to output file
 │
-├── display/                # PARTNER's side
-│   └── ascii_display.py   # terminal rendering + interactive menu
+├── display/                 # PARTNER's side
+│   └── ascii_display.py     # terminal rendering + interactive menu
 │
-└── tests/                  # not submitted/graded, but useful
+└── tests/                    # not submitted/graded, but useful
     ├── test_maze_generator.py
     └── test_config_parser.py
+```
