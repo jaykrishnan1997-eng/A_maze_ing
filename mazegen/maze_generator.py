@@ -7,8 +7,10 @@ class MazeGenerator:
         self._perfect = perfect
         self._seed = seed
         self._grid = [[15] * width for _ in range(height)]
-
+        #actual generation
+        
     def get_grid(self) -> list[list[int]]:
+        #make a copy of the maze
         return [row[:] for row in self._grid]
 
 maze = MazeGenerator(3, 3, (0, 0), (2, 2), True, None)
