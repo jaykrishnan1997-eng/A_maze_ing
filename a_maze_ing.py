@@ -5,11 +5,13 @@ def config_parse(config: str):
     lines: list[str] = config.split("\n")
     # ignoring comment-lines
     lines = [line for line in lines if not line.startswith("#")]
-    mandatory = {"WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"}
-    if (not mandatory <= {line.split("=")[0] for line in lines}):
+    mandatory = ["WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"]
+    if (not set(mandatory) <= {line.split("=")[0] for line in lines}):
         raise Exception(
-            f"Missing mandatory fields in {sys.argv[1]}:\n"
-            f"{mandatory - {line.split("=")[0] for line in lines}}")
+            f"Missing mandatory fields in '{sys.argv[1]}':\n"
+            f"{set(mandatory) - {line.split("=")[0] for line in lines}}")
+    # breakpoint()
+    print([int(v) for v in [l.split("=")[1] for l in lines if l.split("=")[0] in  mandatory[:4]]])
 
 
 def main():
