@@ -1,3 +1,13 @@
+class UnionFind:
+    def __init__(self, size: int):
+        pass
+
+    def find(self, x: int) -> int:
+        pass
+
+    def union(self, x: int, y: int) -> bool:
+        pass
+
 class MazeGenerator:
     def __init__(self, width: int, height: int, entry_coord: tuple[int, int], exit_coord: tuple[int, int], perfect: bool, seed: int | None):
         self._width = width
