@@ -12,17 +12,20 @@ def config_parse(config: str):
             f"{set(mandatory) - {line.split("=")[0] for line in lines}}")
     rconfig['WIDTH'], rconfig['HEIGHT'] = [
         int(v) for v in
-        [l.split("=")[1] for l in lines if l.split("=")[0] in mandatory[:2]]]
+        [line.split("=")[1] for line in lines
+         if line.split("=")[0] in mandatory[:2]]]
     rconfig['ENTRY'], rconfig['EXIT'] = [
         (int(x), int(y)) for x, y in
-        [l.split("=")[1].split(",")
-         for l in lines if l.split("=")[0] in mandatory[2:4]]]
+        [line.split("=")[1].split(",")
+         for line in lines if line.split("=")[0] in mandatory[2:4]]]
     rconfig['OUTPUT_FILE'] = [
         x for x in
-        [l.split("=")[1] for l in lines if l.split("=")[0] == mandatory[4]]]
+        [line.split("=")[1] for line in lines if
+         line.split("=")[0] == mandatory[4]]]
     rconfig['PERFECT'] = [
         x.capitalize() for x in
-        [l.split("=")[1] for l in lines if l.split("=")[0] == mandatory[5]]
+        [line.split("=")[1] for line in lines
+         if line.split("=")[0] == mandatory[5]]
         if x.capitalize() == "true".capitalize() or
         x.capitalize == "false".capitalize() or
         x in (0, 1)]
@@ -34,10 +37,12 @@ def main():
         print("Usage: python3 a-maze-ing.py config.txt")
         exit(1)
     config: str
+    pconfig: dict
     try:
         with open(sys.argv[1]) as file:
             config = file.read()
-            config = config_parse(config)
+            pconfig = config_parse(config)
+            print(pconfig)  # fully parsed config for Jay
     except Exception as e:
         print(e)
         exit(1)
