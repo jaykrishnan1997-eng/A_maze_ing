@@ -1,6 +1,13 @@
 import sys
 
 
+def print_maze(maze: str):
+    hex = maze.split("\n\n")[0]
+    lines = hex.split('\n')
+    width = len(lines[0])
+    height = len(lines)
+    print(width, height)
+
 def config_parse(config: str):
     rconfig = {}
     lines: list[str] = config.split("\n")
@@ -9,7 +16,7 @@ def config_parse(config: str):
     if (not set(mandatory) <= {line.split("=")[0] for line in lines}):
         raise Exception(
             f"Missing mandatory fields in '{sys.argv[1]}':\n"
-            f"{set(mandatory) - {line.split("=")[0] for line in lines}}")
+            f"{set(mandatory) - {line.split('=')[0] for line in lines}}")
     rconfig['WIDTH'], rconfig['HEIGHT'] = [
         int(v) for v in
         [line.split("=")[1] for line in lines
@@ -34,7 +41,7 @@ def config_parse(config: str):
 
 def main():
     if (len(sys.argv) != 2):
-        print("Usage: python3 a-maze-ing.py config.txt")
+        print("\x1b[41mUsage: python3 a-maze-ing.py config.txt")
         exit(1)
     config: str
     pconfig: dict
@@ -42,10 +49,12 @@ def main():
         with open(sys.argv[1]) as file:
             config = file.read()
             pconfig = config_parse(config)
-            print(pconfig)  # fully parsed config for Jay
+            # print(pconfig)  # fully parsed config for Jay
     except Exception as e:
         print(e)
         exit(1)
+    with open("output_25x20.txt") as file:
+        print_maze(file.read())
 
 
 if __name__ == "__main__":
