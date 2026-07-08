@@ -1,6 +1,23 @@
 import sys
 
 
+def htod(h: str):
+    if (type(h) is str and h.capitalize() in ['A', 'B', 'C', 'D', 'E', 'F']):
+        return (10 + ['A', 'B', 'C', 'D', 'E', 'F'].index(h.capitalize()))
+    return (int(h))
+
+
+def compute_closed(cell: int) -> tuple:
+    fields = [8, 4, 2, 1]
+    if (cell in fields):
+        return cell
+    else:
+        return (f := compute_closed(
+            max(list(filter(lambda x: x < cell, fields)))),
+                compute_closed(
+                    max(list(filter(lambda x: x <= cell - f, fields)))))
+
+
 def print_maze(maze: str):
     splat: list[str] = maze.split("\n\n")
     hex: str = splat[0]
@@ -14,16 +31,35 @@ def print_maze(maze: str):
     for i in range(height + 2):
         mazed.append([])
         for j in range(width + 2):
-            # breakpoint()
             if (i, j) == entry:
                 mazed[i].append(['\x1b[31m██\x1b[0m'])
             elif (i, j) == exit:
                 mazed[i].append(['\x1b[32m██\x1b[0m'])
             else:
                 mazed[i].append(['██'])
-    # for line in lines:
-    #     for cell in line:
-
+    for line in range(len(lines)):
+        for cell in range(line):
+            try:
+                breakpoint()
+                closed = compute_closed(15 - htod(lines[line]))
+            except Exception:
+                pass
+            # for c in closed:
+            #     if (c == 1):
+            #         pass
+            #     if (c == 2):
+            #         pass
+            #     if (c == 4):
+            #         pass
+            #     if (c == 8):
+            #         pass
+            9
+            '0101'
+            10
+            '1010'
+            print(cell, end='')
+            # print(closed)
+        print()
     # Actual printing
     for line in mazed:
         for cell in line:
