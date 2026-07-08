@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/08 16:12:56 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/08 16:46:16 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -133,24 +133,34 @@ class MazeGenerator:
             elif x == 0:
                 self._grid[y][x] &= ~8  # open West
             elif x == self._width - 1:
-                self._grid[y][x] &= ~8  # open West
+                self._grid[y][x] &= ~2  # open West
 
     # setting 42 symbol constrain
-    def _fourty_two(self) -> None:
+    def _forty_two(self) -> None:
         if self._height > 7 and self._width > 9:
-            x0 = self._width / 2
-            y0 = self._height / 2
+            x0 = self._width // 2
+            y0 = self._height // 2
             ftlist = [
-                (-1 + x0, 0 + y0), (-2 + x0, 0 + y0), (-3 + x0, 0 + y0),
-                (-3 + x0, 1 + y0), (-3 + x0, 2 + y0), (-3 + x0, 3 + y0),
-                (-1 + x0, -1 + y0), (-1 + x0, -2 + y0), (-1 + x0, -3 + y0),
-                (1 + x0, 0 + y0), (2 + x0, 0 + y0), (3 + x0, 0 + y0),
-                (3 + x0, 1 + y0), (3 + x0, 2 + y0), (2 + x0, 2 + y0),
-                (1 + x0, 2 + y0), (1 + x0, -1 + y0), (1 + x0, -2 + y0),
-                (2 + x0, -2 + y0), (3 + x0, -2 + y0)
+                (-1, 0), (-2, 0), (-3, 0), (-3, 1), (-3, 2),
+                (-3, 3), (-1, -1), (-1, -2), (-1, -3), (1, 0),
+                (2, 0), (3, 0), (3, 1), (3, 2), (2, 2),
+                (1, 2), (1, -1), (1, -2), (2, -2), (3, -2)
             ]
-            for (x, y) in ftlist:
+            for dx, dy in ftlist:
+                x = x0 + dx
+                y = y0 + dy
+
                 self._grid[y][x] = 15
+
+                # once 42 is set, neighbours also need fix
+                if x > 0:
+                    self._grid[y][x - 1] |= 2   # close east wall
+                if x < self._width - 1:
+                    self._grid[y][x + 1] |= 8   # close west wall
+                if y > 0:
+                    self._grid[y - 1][x] |= 4   # close south wall
+                if y < self._height - 1:
+                    self._grid[y + 1][x] |= 1   # close north wall
 
 
 #  method to verify if the created maze is consistent, ie the properties
