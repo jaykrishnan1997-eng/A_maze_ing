@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/07 14:08:31 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/08 16:12:56 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -123,8 +123,55 @@ class MazeGenerator:
                 self._grid[ay][ax] &= ~1  # clear N bit on a
                 self._grid[by][bx] &= ~4  # clear S bit on b
 
+    # giving opening for the entry cell and exit cell
+    def _open_entry_exit(self) -> None:
+        for x, y in [self._entry_coord, self._exit_coord]:
+            if y == 0:
+                self._grid[y][x] &= ~1  # open North
+            elif y == self._height - 1:
+                self._grid[y][x] &= ~4  # open South
+            elif x == 0:
+                self._grid[y][x] &= ~8  # open West
+            elif x == self._width - 1:
+                self._grid[y][x] &= ~8  # open West
 
-# maze = MazeGenerator(3, 3, (0, 0), (2, 2), True, None)
-# grid = maze.get_grid()
-# grid[0][0] = 99
-# print(maze.get_grid())
+    # setting 42 symbol constrain
+    def _fourty_two(self) -> None:
+        if self._height > 7 and self._width > 9:
+            x0 = self._width / 2
+            y0 = self._height / 2
+            ftlist = [
+                (-1 + x0, 0 + y0), (-2 + x0, 0 + y0), (-3 + x0, 0 + y0),
+                (-3 + x0, 1 + y0), (-3 + x0, 2 + y0), (-3 + x0, 3 + y0),
+                (-1 + x0, -1 + y0), (-1 + x0, -2 + y0), (-1 + x0, -3 + y0),
+                (1 + x0, 0 + y0), (2 + x0, 0 + y0), (3 + x0, 0 + y0),
+                (3 + x0, 1 + y0), (3 + x0, 2 + y0), (2 + x0, 2 + y0),
+                (1 + x0, 2 + y0), (1 + x0, -1 + y0), (1 + x0, -2 + y0),
+                (2 + x0, -2 + y0), (3 + x0, -2 + y0)
+            ]
+            for (x, y) in ftlist:
+                self._grid[y][x] = 15
+
+
+#  method to verify if the created maze is consistent, ie the properties
+#  of each cell agrees with the nearby cell
+def verify_coherence(grid: list[list[int]]) -> list[str]:
+    """Returns a list of error messages for any incoherent wall pairs found."""
+    errors = []
+    width = len(grid[0])
+    height = len(grid)
+    for y in range(height):
+        for x in range(width):
+            #  checking east neighbor
+            if x < width - 1:
+                east_cell = grid[y][x + 1]
+                current_cell = grid[y][x]
+                if bool(current_cell & 2) != bool(east_cell & 8):
+                    errors.append(f"E wall of ({x},{y}) is broken")
+            #  checking south neightbor
+            if y < height - 1:
+                south_cell = grid[y + 1][x]
+                curr_cell = grid[y][x]
+                if bool(curr_cell & 4) != bool(south_cell & 1):
+                    errors.append(f"S wall of ({x},{y}) is broken")
+    return errors
