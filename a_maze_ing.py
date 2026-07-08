@@ -8,14 +8,19 @@ def htod(h: str):
 
 
 def compute_closed(cell: int) -> tuple:
-    fields = [8, 4, 2, 1]
+    fields: list[int] = [0, 8, 4, 2, 1]
     if (cell in fields):
-        return cell
+        return (cell, cell, cell, cell)
     else:
         return (f := compute_closed(
-            max(list(filter(lambda x: x < cell, fields)))),
+            max(list(filter(lambda x: x < cell, fields))))[0],
+                s := compute_closed(
+                    max(list(filter(lambda x: x <= cell - f, fields))))[0],
+                t := compute_closed(
+                    max(list(filter(lambda x: x <= cell - f - s, fields))))[0],
                 compute_closed(
-                    max(list(filter(lambda x: x <= cell - f, fields)))))
+                    max(list(filter(
+                        lambda x: x <= cell - f - s - t, fields))))[0],)
 
 
 def print_maze(maze: str):
@@ -37,28 +42,26 @@ def print_maze(maze: str):
                 mazed[i].append(['\x1b[32m██\x1b[0m'])
             else:
                 mazed[i].append(['██'])
-    for line in range(len(lines)):
-        for cell in range(line):
+    # print(lines)
+    # breakpoint()
+    for line in range(1, len(lines) + 1):
+        for cell in range(1, len(lines[line - 1]) + 1):
+            # print(lines[line][cell])
             try:
-                breakpoint()
-                closed = compute_closed(15 - htod(lines[line]))
+                closed = compute_closed(15 - htod(lines[line - 1][cell - 1]))
             except Exception:
                 pass
-            # for c in closed:
-            #     if (c == 1):
-            #         pass
-            #     if (c == 2):
-            #         pass
-            #     if (c == 4):
-            #         pass
-            #     if (c == 8):
-            #         pass
-            9
-            '0101'
-            10
-            '1010'
-            print(cell, end='')
-            # print(closed)
+            for c in closed:
+                if (c == 1):
+                    mazed[line - 1][cell] = '  '
+                if (c == 2):
+                    mazed[line][cell + 1] = '  '
+                if (c == 4):
+                    mazed[line + 1][cell] = '  '
+                if (c == 8):
+                    mazed[line][cell - 1] = '  '
+            print(lines[line - 1][cell - 1], end='')
+            print(f"{closed} ", end='')
         print()
     # Actual printing
     for line in mazed:
