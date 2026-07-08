@@ -2,11 +2,34 @@ import sys
 
 
 def print_maze(maze: str):
-    hex = maze.split("\n\n")[0]
-    lines = hex.split('\n')
-    width = len(lines[0])
-    height = len(lines)
-    print(width, height)
+    splat: list[str] = maze.split("\n\n")
+    hex: str = splat[0]
+    entry: tuple[int] = tuple([int(x) for x in splat[1].split("\n")[0].split(",")])
+    exit: tuple[int] = tuple([int(x) for x in splat[1].split("\n")[1].split(",")])
+    lines: list[str] = hex.split('\n')
+    width: int = len(lines[0])
+    height: int = len(lines)
+    mazed: list[str] = []
+    # Making an array of arrays because strings in python are immutable
+    for i in range(height + 2):
+        mazed.append([])
+        for j in range(width + 2):
+            # breakpoint()
+            if (i, j) == entry:
+                mazed[i].append(['\x1b[31m██\x1b[0m'])
+            elif (i, j) == exit:
+                mazed[i].append(['\x1b[32m██\x1b[0m'])
+            else:
+                mazed[i].append(['██'])
+    # for line in lines:
+    #     for cell in line:
+
+    # Actual printing
+    for line in mazed:
+        for cell in line:
+            print(cell[0], end='')
+        print()
+
 
 def config_parse(config: str):
     rconfig = {}
@@ -49,7 +72,7 @@ def main():
         with open(sys.argv[1]) as file:
             config = file.read()
             pconfig = config_parse(config)
-            # print(pconfig)  # fully parsed config for Jay
+            print(pconfig)  # fully parsed config for Jay
     except Exception as e:
         print(e)
         exit(1)
