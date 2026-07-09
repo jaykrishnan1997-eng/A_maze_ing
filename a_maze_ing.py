@@ -24,56 +24,81 @@ def compute_closed(cell: int) -> tuple:
 
 
 def print_maze(maze: str):
+    # WALL_COLOR = ''
+    # WALL_CHARACTER = ''
+    # ENTRY_COLOR = ''
+    # ENTRY_CHARACTER = ''
+    # EXIT_COLOR = ''
+    # EXIT_CHARACTER = ''
+    ENTRY = '\x1b[31m██\x1b[0m'
+    EXIT = '\x1b[32m██\x1b[0m'
+    WALLS = '\x1b[38;2;140;140;140m██\x1b[0m'
+
     def draw(mazed: list[list[str]]):
         # Actual printing
         for line in mazed:
             for cell in line:
                 print(cell[0], end='')
             print()
+
+    def blank_maze(mazed: list[list[str]]):
+        pass
+
+    def apply_lines(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
+        for line in range(1, len(lines) + 1):
+            for cell in range(1, len(lines[line - 1]) + 1):
+                try:
+                    closed = compute_closed(15 - htod(lines[line - 1][cell - 1]))
+                except Exception:
+                    pass
+                for c in closed:
+                    if (c == 1):
+                        if ((line - 1, cell) not in [entry, exit]):
+                            mazed[line - 1][cell] = ['\x1b[30m██\x1b[0m']
+                            # mazed[line - 1][cell] = ['░░']
+                    if (c == 2):
+                        # breakpoint()
+                        if ((line, cell + 1) not in [entry, exit]):
+                            mazed[line][cell + 1] = ['\x1b[30m██\x1b[0m']
+                            # mazed[line][cell + 1] = ['░░']
+                    if (c == 4):
+                        if ((line + 1, cell) not in [entry, exit]):
+                            mazed[line + 1][cell] = ['\x1b[30m██\x1b[0m']
+                            # mazed[line + 1][cell] = ['░░']
+                    if (c == 8):
+                        if ((line, cell - 1) not in [entry, exit]):
+                            mazed[line][cell - 1] = ['\x1b[30m██\x1b[0m']
+                            # mazed[line][cell - 1] = ['░░']
+            #     print(lines[line - 1][cell - 1], end='')
+            #     print(f"{closed} ", end='')
+            # print()
+
+    # preliminary parsing of ooutput file
     splat: list[str] = maze.split("\n\n")
     hex: str = splat[0]
-    entry: tuple[int] = tuple([int(x) for x in splat[1].split("\n")[0].split(",")])
-    exit: tuple[int] = tuple([int(x) for x in splat[1].split("\n")[1].split(",")])
+    entry: tuple[int] = tuple([int(x) + 1
+                               for x in splat[1].split("\n")[0].split(",")])
+    exit: tuple[int] = tuple([int(x) + 1
+                              for x in splat[1].split("\n")[1].split(",")])
     lines: list[str] = hex.split('\n')
     width: int = len(lines[0])
     height: int = len(lines)
     mazed: list[str] = []
-    # Making an array of arrays because strings in python are immutable
+
+    # Making an array of arrays that stores a blank maze of desired
+    # dimensions
     for i in range(height + 2):
         mazed.append([])
         for j in range(width + 2):
             if (i, j) == entry:
-                mazed[i].append(['\x1b[31m██\x1b[0m'])
+                mazed[i].append([f'{ENTRY}'])
             elif (i, j) == exit:
-                mazed[i].append(['\x1b[32m██\x1b[0m'])
+                mazed[i].append([f'{EXIT}'])
             else:
-                mazed[i].append(['██'])
-    # print(lines)
-    # breakpoint()
-    for line in range(1, len(lines) + 1):
-        for cell in range(1, len(lines[line - 1]) + 1):
-            # print(lines[line][cell])
-            try:
-                closed = compute_closed(15 - htod(lines[line - 1][cell - 1]))
-            except Exception:
-                pass
-            for c in closed:
-                if (c == 1):
-                    if ((line - 1, cell) not in [entry, exit]):
-                        mazed[line - 1][cell] = ['░░']
-                if (c == 2):
-                    # breakpoint()
-                    if ((line, cell + 1) not in [entry, exit]):
-                        mazed[line][cell + 1] = ['░░']
-                if (c == 4):
-                    if ((line + 1, cell) not in [entry, exit]):
-                        mazed[line + 1][cell] = ['░░']
-                if (c == 8):
-                    if ((line, cell - 1) not in [entry, exit]):
-                        mazed[line][cell - 1] = ['░░']
-            print(lines[line - 1][cell - 1], end='')
-            print(f"{closed} ", end='')
-        print()
+                mazed[i].append([f"{WALLS}"])
+    # Applying lines from output file to the blank maze
+    apply_lines(mazed, lines, entry, exit)
+    # draw maze!!
     draw(mazed)
 
 
@@ -122,8 +147,8 @@ def main():
     except Exception as e:
         print(e)
         exit(1)
-    # with open("output_test_5x5.txt") as file:
-    with open("output_25x20.txt") as file:
+    # with open("output_25x20.txt") as file:
+    with open("output_test_5x5.txt") as file:
         print_maze(file.read())
 
 
