@@ -45,6 +45,10 @@ def print_maze(maze: str):
         pass
 
     def apply_lines(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
+        # this function is only closing non-zero values which prints the
+        # correct maze but does not ensure consistency of output
+        # so it will always print a correct maze correctly, but it may
+        # also print an incorrect maze
         for line in range(1, len(lines) + 1):
             for cell in range(1, len(lines[line - 1]) + 1):
                 try:
@@ -69,9 +73,6 @@ def print_maze(maze: str):
                         if ((line, cell - 1) not in [entry, exit]):
                             mazed[line][cell - 1] = ['\x1b[30m██\x1b[0m']
                             # mazed[line][cell - 1] = ['░░']
-            #     print(lines[line - 1][cell - 1], end='')
-            #     print(f"{closed} ", end='')
-            # print()
 
     # preliminary parsing of ooutput file
     splat: list[str] = maze.split("\n\n")
