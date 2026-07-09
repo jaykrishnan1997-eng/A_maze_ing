@@ -13,7 +13,14 @@
 
 
 import random
+from collections import deque
 
+DIRECTIONS = [
+    ("N", 1, (0, -1)),
+    ("E", 2, (1, 0)),
+    ("S", 4, (0, 1)),
+    ("W", 8, (-1, 0)),
+]
 
 # x and y are NOT spatial coordinate but are generic cell
 # IDs like 0,1,2,.., width * height - 1
@@ -172,6 +179,24 @@ class MazeGenerator:
                 if self._grid[y0 + dy][x0 + dx] & 4:
                     return False
         return True
+
+# check for 3x3 open block to run through every possible cases
+def find_open_3x3_blocks(maze: MazeGenerator) -> list[tuple[int, int]]:
+    violations = []
+    for x0 in range(maze._width - 2):
+        for y0 in range(maze._height - 2):
+            if maze._has_open_3x3(x0, y0):
+                violations.append((x0, y0))
+    return violations
+
+# BFS: Theseus
+def solve(self) -> list[str]:
+    start = self._entry_coord
+    end = self._exit_coord
+    queue = deque()
+    visited = set()
+    came_from = {}
+    
 
 
 #  method to verify if the created maze is consistent, ie the properties
