@@ -24,6 +24,12 @@ def compute_closed(cell: int) -> tuple:
 
 
 def print_maze(maze: str):
+    def draw(mazed: list[list[str]]):
+        # Actual printing
+        for line in mazed:
+            for cell in line:
+                print(cell[0], end='')
+            print()
     splat: list[str] = maze.split("\n\n")
     hex: str = splat[0]
     entry: tuple[int] = tuple([int(x) for x in splat[1].split("\n")[0].split(",")])
@@ -53,21 +59,22 @@ def print_maze(maze: str):
                 pass
             for c in closed:
                 if (c == 1):
-                    mazed[line - 1][cell] = '  '
+                    if ((line - 1, cell) not in [entry, exit]):
+                        mazed[line - 1][cell] = ['░░']
                 if (c == 2):
-                    mazed[line][cell + 1] = '  '
+                    # breakpoint()
+                    if ((line, cell + 1) not in [entry, exit]):
+                        mazed[line][cell + 1] = ['░░']
                 if (c == 4):
-                    mazed[line + 1][cell] = '  '
+                    if ((line + 1, cell) not in [entry, exit]):
+                        mazed[line + 1][cell] = ['░░']
                 if (c == 8):
-                    mazed[line][cell - 1] = '  '
+                    if ((line, cell - 1) not in [entry, exit]):
+                        mazed[line][cell - 1] = ['░░']
             print(lines[line - 1][cell - 1], end='')
             print(f"{closed} ", end='')
         print()
-    # Actual printing
-    for line in mazed:
-        for cell in line:
-            print(cell[0], end='')
-        print()
+    draw(mazed)
 
 
 def config_parse(config: str):
@@ -115,6 +122,7 @@ def main():
     except Exception as e:
         print(e)
         exit(1)
+    # with open("output_test_5x5.txt") as file:
     with open("output_25x20.txt") as file:
         print_maze(file.read())
 
