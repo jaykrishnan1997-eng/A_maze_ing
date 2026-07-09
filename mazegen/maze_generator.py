@@ -22,6 +22,7 @@ DIRECTIONS = [
     ("W", 8, (-1, 0)),
 ]
 
+
 # x and y are NOT spatial coordinate but are generic cell
 # IDs like 0,1,2,.., width * height - 1
 class UnionFind:
@@ -60,7 +61,10 @@ class UnionFind:
 
 
 class MazeGenerator:
-    def __init__(self, width: int, height: int, entry_coord: tuple[int, int], exit_coord: tuple[int, int], perfect: bool, seed: int | None):
+    def __init__(
+        self, width: int, height: int, entry_coord: tuple[int, int],
+        exit_coord: tuple[int, int], perfect: bool, seed: int | None
+    ):
         self._width = width
         self._height = height
         self._entry_coord = entry_coord
@@ -85,7 +89,9 @@ class MazeGenerator:
         return (id % self._width, id // self._width)
 
     #  Candidate wall list
-    def build_walls(self, excluded: set[tuple[int, int]]) -> list[tuple[int, int]]:
+    def build_walls(
+        self, excluded: set[tuple[int, int]]
+    ) -> list[tuple[int, int]]:
         walls = []
         for y in range(self._height):
             for x in range(self._width):
@@ -180,6 +186,7 @@ class MazeGenerator:
                     return False
         return True
 
+
 # check for 3x3 open block to run through every possible cases
 def find_open_3x3_blocks(maze: MazeGenerator) -> list[tuple[int, int]]:
     violations = []
@@ -189,6 +196,7 @@ def find_open_3x3_blocks(maze: MazeGenerator) -> list[tuple[int, int]]:
                 violations.append((x0, y0))
     return violations
 
+
 # BFS: Theseus
 def solve(self) -> list[str]:
     start = self._entry_coord
@@ -196,7 +204,6 @@ def solve(self) -> list[str]:
     queue = deque()
     visited = set()
     came_from = {}
-    
 
 
 #  method to verify if the created maze is consistent, ie the properties

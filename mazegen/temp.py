@@ -1,14 +1,16 @@
-from maze_generator import MazeGenerator, find_open_3x3_blocks, verify_coherence
+from maze_generator import MazeGenerator, find_open_3x3_blocks
+from maze_generator import verify_coherence
 
 maze = MazeGenerator(20, 15, (0, 0), (19, 14), True, seed=None)
 grid = maze.get_grid()
-#errors = verify_coherence(grid)
-#print(f"Found {len(errors)} coherence objects")
-#for e in errors:
-#    print(e)
 
-#for row in grid:
-#    print(row)
+# errors = verify_coherence(grid)
+# print(f"Found {len(errors)} coherence objects")
+# for e in errors:
+#   print(e)
+
+# for row in grid:
+#   print(row)
 
 
 # maze1 = MazeGenerator(10, 10, (0, 0), (9, 9), True, seed=7)
