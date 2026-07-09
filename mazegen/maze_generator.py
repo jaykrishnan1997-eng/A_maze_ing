@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/08 16:46:16 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/09 12:19:49 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -63,6 +63,7 @@ class MazeGenerator:
         self._grid = [[15] * width for _ in range(height)]
         removed_walls = self._run_kruskal()
         self._apply_walls(removed_walls)
+        self._open_entry_exit()
 
     #  make a copy of the maze
     def get_grid(self) -> list[list[int]]:
@@ -77,21 +78,24 @@ class MazeGenerator:
         return (id % self._width, id // self._width)
 
     #  Candidate wall list
-    def build_walls(self) -> list[tuple[int, int]]:
+    def build_walls(self, excluded: set[tuple[int, int]]) -> list[tuple[int, int]]:
         walls = []
         for y in range(self._height):
             for x in range(self._width):
+                # skip cells making 42
+                if (x, y) in excluded:
+                    continue
                 # for the east wall
-                if x < self._width - 1:
+                if x < self._width - 1 and (x + 1, y) not in excluded:
                     walls.append((self.cell_id(x, y), self.cell_id(x + 1, y)))
                 # for the soth wall
-                if y < self._height - 1:
+                if y < self._height - 1 and (x, y + 1) not in excluded:
                     walls.append((self.cell_id(x, y), self.cell_id(x, y + 1)))
         return walls
 
     def _run_kruskal(self) -> list[tuple[int, int]]:
         uf = UnionFind(self._width * self._height)
-        walls = self.build_walls()
+        walls = self.build_walls(self._forty_two_cells())
         rng = random.Random(self._seed)
         rng.shuffle(walls)
         removed_walls = []
@@ -133,34 +137,41 @@ class MazeGenerator:
             elif x == 0:
                 self._grid[y][x] &= ~8  # open West
             elif x == self._width - 1:
-                self._grid[y][x] &= ~2  # open West
+                self._grid[y][x] &= ~2  # open East
 
     # setting 42 symbol constrain
-    def _forty_two(self) -> None:
+    def _forty_two_cells(self) -> set[tuple[int, int]]:
         if self._height > 7 and self._width > 9:
             x0 = self._width // 2
             y0 = self._height // 2
-            ftlist = [
-                (-1, 0), (-2, 0), (-3, 0), (-3, 1), (-3, 2),
-                (-3, 3), (-1, -1), (-1, -2), (-1, -3), (1, 0),
-                (2, 0), (3, 0), (3, 1), (3, 2), (2, 2),
-                (1, 2), (1, -1), (1, -2), (2, -2), (3, -2)
-            ]
-            for dx, dy in ftlist:
-                x = x0 + dx
-                y = y0 + dy
+            ftset = {
+                (-3 + x0, -2 + y0), (-3 + x0, -1 + y0), (-3 + x0, 0 + y0),
+                (-2 + x0, 0 + y0), (-1 + x0, 0 + y0), (-1 + x0, 1 + y0),
+                (-1 + x0, 2 + y0), (1 + x0, -2 + y0), (2 + x0, -2 + y0),
+                (3 + x0, -2 + y0), (3 + x0, -1 + y0), (3 + x0, 0 + y0),
+                (2 + x0, 0 + y0), (1 + x0, 0 + y0), (1 + x0, 1 + y0),
+                (1 + x0, 2 + y0), (2 + x0, 2 + y0), (3 + x0, 2 + y0)
+            }
+            return ftset
+        else:
+            print("Maze too small for '42' pattern, skipping")
+            return set()
 
-                self._grid[y][x] = 15
-
-                # once 42 is set, neighbours also need fix
-                if x > 0:
-                    self._grid[y][x - 1] |= 2   # close east wall
-                if x < self._width - 1:
-                    self._grid[y][x + 1] |= 8   # close west wall
-                if y > 0:
-                    self._grid[y - 1][x] |= 4   # close south wall
-                if y < self._height - 1:
-                    self._grid[y + 1][x] |= 1   # close north wall
+    # 3x3 or more ccoridor validator
+    def _has_open_3x3(self, x0: int, y0: int) -> bool:
+        # Check horizontal connections
+        for dy in range(3):
+            for dx in range(2):
+                # East wall exist
+                if self._grid[y0 + dy][x0 + dx] & 2:
+                    return False
+        # Check vertical connections
+        for dx in range(3):
+            for dy in range(2):
+                # South wall exist
+                if self._grid[y0 + dy][x0 + dx] & 4:
+                    return False
+        return True
 
 
 #  method to verify if the created maze is consistent, ie the properties
