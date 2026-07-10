@@ -45,35 +45,37 @@ def print_maze(maze: str):
     def blank_maze(mazed: list[list[str]]):
         pass
 
-    def apply_lines(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
+    def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
         # this function is only closing non-zero values which prints the
         # correct maze but does not ensure consistency of output
         # so it will always print a correct maze correctly, but it may
         # also print an incorrect maze
-        for line in range(1, len(lines) + 1):
-            for cell in range(1, len(lines[line - 1]) + 1):
+        for line in range(0, len(lines)):
+            for cell in range(0, len(lines[line - 1])):
                 try:
                     closed = compute_closed(15 - htod(lines[line - 1][cell - 1]))
                 except Exception:
                     pass
+                mline = (line * 2) + 1
+                mcell = (cell * 2) + 1
                 for c in closed:
                     if (c == 1):
-                        if ((line - 1, cell) not in [entry, exit]):
-                            mazed[line - 1][cell] = ['\x1b[30m██\x1b[0m']
-                            # mazed[line - 1][cell] = ['░░']
+                        mazed[mline - 1][mcell] = [WALLS]
                     if (c == 2):
-                        # breakpoint()
-                        if ((line, cell + 1) not in [entry, exit]):
-                            mazed[line][cell + 1] = ['\x1b[30m██\x1b[0m']
-                            # mazed[line][cell + 1] = ['░░']
+                        mazed[mline][mcell + 1] = [WALLS]
                     if (c == 4):
-                        if ((line + 1, cell) not in [entry, exit]):
-                            mazed[line + 1][cell] = ['██']
-                            # mazed[line + 1][cell] = ['░░']
+                        mazed[mline + 1][mcell] = [WALLS]
                     if (c == 8):
-                        if ((line, cell - 1) not in [entry, exit]):
-                            mazed[line][cell - 1] = ['██']
-                            # mazed[line][cell - 1] = ['░░']
+                        mazed[mline][mcell - 1] = [WALLS]
+                for o in ({1, 2, 4, 8} - set(closed)):
+                    if (c == 1):
+                        mazed[mline - 1][mcell] = [CELL]
+                    if (c == 2):
+                        mazed[mline][mcell + 1] = [CELL]
+                    if (c == 4):
+                        mazed[mline + 1][mcell] = [CELL]
+                    if (c == 8):
+                        mazed[mline][mcell - 1] = [CELL]
 
     # preliminary parsing of ooutput file
     splat: list[str] = maze.split("\n\n")
@@ -106,7 +108,7 @@ def print_maze(maze: str):
                 else:
                     mazed[i].append([f"{CELL}"])
     # Applying lines from output file to the blank maze
-    # apply_lines(mazed, lines, entry, exit)
+    apply_walls(mazed, lines, entry, exit)
     # draw maze!!
     draw(mazed)
 
