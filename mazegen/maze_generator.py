@@ -201,9 +201,34 @@ def find_open_3x3_blocks(maze: MazeGenerator) -> list[tuple[int, int]]:
 def solve(self) -> list[str]:
     start = self._entry_coord
     end = self._exit_coord
-    queue = deque()
-    visited = set()
-    came_from = {}
+    queue = deque([start])
+    visited = {start}
+    came_from: dict[tuple[int, int], tuple[tuple[int, int], str]] = {}
+    
+    while queue:
+        current = queue.popleft()
+        if current == end:
+            break
+        x, y = current
+        for dir, bit, (dx, dy) in DIRECTIONS:
+            # open wall check. if yes wall is open so walkable
+            if self._grid[y][x] & bit == 0:
+                neighbor = (x + dx, y + dy)
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append(neighbor)
+                    came_from[neighbor] = (current, dir)
+
+    path: list[str] = []
+    current = end
+
+    while current != start:
+        parent, direction = came_from[current]
+        path.append(direction)
+        current = parent
+
+    path.reverse()
+    return path
 
 
 #  method to verify if the created maze is consistent, ie the properties
