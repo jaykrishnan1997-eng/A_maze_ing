@@ -58,16 +58,9 @@ def print_maze(maze: str):
                     pass
                 mline = (line * 2) + 1
                 mcell = (cell * 2) + 1
+                if ({1, 2, 4, 8} == set(closed)):
+                    mazed[mline][mcell] = [WALLS]
                 for c in closed:
-                    if (c == 1):
-                        mazed[mline - 1][mcell] = [WALLS]
-                    if (c == 2):
-                        mazed[mline][mcell + 1] = [WALLS]
-                    if (c == 4):
-                        mazed[mline + 1][mcell] = [WALLS]
-                    if (c == 8):
-                        mazed[mline][mcell - 1] = [WALLS]
-                for o in ({1, 2, 4, 8} - set(closed)):
                     if (c == 1):
                         mazed[mline - 1][mcell] = [CELL]
                     if (c == 2):
@@ -76,6 +69,15 @@ def print_maze(maze: str):
                         mazed[mline + 1][mcell] = [CELL]
                     if (c == 8):
                         mazed[mline][mcell - 1] = [CELL]
+                for o in ({1, 2, 4, 8} - set(closed)):
+                    if (o == 1):
+                        mazed[mline - 1][mcell] = [WALLS]
+                    if (o == 2):
+                        mazed[mline][mcell + 1] = [WALLS]
+                    if (o == 4):
+                        mazed[mline + 1][mcell] = [WALLS]
+                    if (o == 8):
+                        mazed[mline][mcell - 1] = [WALLS]
 
     # preliminary parsing of ooutput file
     splat: list[str] = maze.split("\n\n")
