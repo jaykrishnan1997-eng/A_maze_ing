@@ -50,10 +50,11 @@ def print_maze(maze: str):
         # correct maze but does not ensure consistency of output
         # so it will always print a correct maze correctly, but it may
         # also print an incorrect maze
+        breakpoint()
         for line in range(0, len(lines)):
-            for cell in range(0, len(lines[line - 1])):
+            for cell in range(0, len(lines[0])):
                 try:
-                    closed = compute_closed(15 - htod(lines[line - 1][cell - 1]))
+                    closed = compute_closed(15 - htod(lines[line][cell]))
                 except Exception:
                     pass
                 mline = (line * 2) + 1
