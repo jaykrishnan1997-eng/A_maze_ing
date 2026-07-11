@@ -1,5 +1,5 @@
 import sys
-
+import time
 
 def htod(h: str):
     if (type(h) is str and h.capitalize() in ['A', 'B', 'C', 'D', 'E', 'F']):
@@ -7,6 +7,7 @@ def htod(h: str):
     return (int(h))
 
 
+# its actually compute_open, i'll fix the names later
 def compute_closed(cell: int) -> tuple:
     fields: list[int] = [0, 8, 4, 2, 1]
     if (cell in fields):
@@ -30,21 +31,40 @@ def print_maze(maze: str):
     # ENTRY_CHARACTER = ''
     # EXIT_COLOR = ''
     # EXIT_CHARACTER = ''
+    CLEAR_SCREEN = '\x1b[2J\x1b[H'
     ENTRY = '\x1b[32m██\x1b[0m'
     EXIT = '\x1b[31m██\x1b[0m'
     WALLS = '\x1b[38;2;140;140;140m██\x1b[0m'
     CELL = '██'
-    FT = '\x1b[94m██\x1b[0m'
+    BLINK_FT = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
+    FTT = '\x1b[38;5;117m██\x1b[0m'
 
     def draw(mazed: list[list[str]]):
         # Actual printing
+        print(CLEAR_SCREEN)
         for line in mazed:
             for cell in line:
                 print(cell[0], end='')
             print()
+        print()
+        print(WALLS * len(mazed[0]))
+        # msg = "\x1b[47mWelcome to A-MAZE-ING\x1b[0m\n"
+        # breakpoint()
+        # print(msg)
 
-    def blank_maze(mazed: list[list[str]]):
-        pass
+    def move(mazed: list[list[str]], entry: list[int], path: str):
+        if (len(path) == 0):
+            return
+        if (len(path) == 1):
+            entry[0] = entry[0] - 1 if path == 'N' else entry[0]
+            entry[1] = entry[1] + 1 if path == 'W' else entry[1]
+            entry[0] = entry[0] + 1 if path == 'S' else entry[0]
+            entry[1] = entry[1] - 1 if path == 'E' else entry[1]
+            mazed[(entry[0] * 2) + 1][(entry[1] * 2) + 1] = '\x1b[38mXX\x1b[0m'
+            draw(mazed)
+            return entry
+        if (len(path) > 1):
+            move(mazed, move(mazed, entry, path[0]), path[1:])
 
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
         # this function is only closing non-zero values which prints the
@@ -72,11 +92,11 @@ def print_maze(maze: str):
                         mazed[mline - 1][mcell] = [CELL]
                 open = {1, 2, 4, 8} - set(closed)
                 if ({1, 2, 4, 8} == open):
-                    mazed[mline][mcell] = [FT]
+                    mazed[mline][mcell] = [BLINK_FT]
                     ft = True
                 for o in open:
                     if (o == 8):
-                        mazed[mline][mcell - 1] = [WALLS if not ft else FT]
+                        mazed[mline][mcell - 1] = [WALLS if not ft else BLINK_FT]
                     elif (o == 4):
                         mazed[mline + 1][mcell] = [WALLS]
                     elif (o == 2):
@@ -87,15 +107,14 @@ def print_maze(maze: str):
     # preliminary parsing of ooutput file
     splat: list[str] = maze.split("\n\n")
     hex: str = splat[0]
-    entry: tuple[int] = tuple([int(x)
-                               for x in splat[1].split("\n")[0].split(",")])
-    exit: tuple[int] = tuple([int(x)
-                              for x in splat[1].split("\n")[1].split(",")])
+    resplat = splat[1].split("\n")
+    entry: tuple[int] = tuple([int(x) for x in resplat[0].split(",")])
+    exit: tuple[int] = tuple([int(x) for x in resplat[1].split(",")])
+    path: str = resplat[2]
     lines: list[str] = hex.split('\n')
     width: int = len(lines[0])
     height: int = len(lines)
     mazed: list[str] = []
-
     # Making an array of arrays that stores a blank maze of desired
     # dimensions
     for i in range((2 * height) + 1):
@@ -110,10 +129,18 @@ def print_maze(maze: str):
                     mazed[i].append([f"{EXIT}"])
                 else:
                     mazed[i].append([f"{CELL}"])
-    # Applying lines from output file to the blank maze
+    # Applying walls from output file to the blank maze
     apply_walls(mazed, lines, entry, exit)
     # draw maze!!
-    draw(mazed)
+    # draw(mazed)
+    command = ""
+    while (command.capitalize() != "Q"):
+        draw(mazed)
+        command = input("\nP: print path\nQ: quit\n\n")
+        if command.capitalize() == "P":
+            # breakpoint()
+            move(mazed, list(entry), path)
+            time.sleep(10)
 
 
 def config_parse(config: str):
@@ -162,7 +189,7 @@ def main():
         print(e)
         exit(1)
     # with open("output_test_5x5.txt") as file:
-    with open("maze_output.txt") as file:
+    with open("output_25x20.txt") as file:
         print_maze(file.read())
 
 
