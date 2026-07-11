@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/09 12:19:49 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/11 11:58:19 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -60,6 +60,7 @@ class UnionFind:
         return True
 
 
+# Daedalun and Theseus
 class MazeGenerator:
     def __init__(
         self, width: int, height: int, entry_coord: tuple[int, int],
@@ -72,8 +73,9 @@ class MazeGenerator:
         self._perfect = perfect
         self._seed = seed
         self._grid = [[15] * width for _ in range(height)]
-        removed_walls = self._run_kruskal()
-        self._apply_walls(removed_walls)
+        removed_walls, rejected_walls = self._run_kruskal()
+        loop_walls = self._add_loop(rejected_walls)
+        self._apply_walls(removed_walls + loop_walls)
         self._open_entry_exit()
 
     #  make a copy of the maze
@@ -106,16 +108,21 @@ class MazeGenerator:
                     walls.append((self.cell_id(x, y), self.cell_id(x, y + 1)))
         return walls
 
-    def _run_kruskal(self) -> list[tuple[int, int]]:
+    def _run_kruskal(
+        self
+    ) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
         uf = UnionFind(self._width * self._height)
         walls = self.build_walls(self._forty_two_cells())
         rng = random.Random(self._seed)
         rng.shuffle(walls)
         removed_walls = []
+        rejected_walls = []
         for a, b in walls:
             if uf.union(a, b):
                 removed_walls.append((a, b))
-        return removed_walls
+            else:
+                rejected_walls.append((a, b))
+        return (removed_walls, rejected_walls)
 
     #  translate removed walls into _grid bitmask:
     def _apply_walls(self, removed_walls: list[tuple[int, int]]) -> None:
@@ -186,6 +193,55 @@ class MazeGenerator:
                     return False
         return True
 
+    # BFS: Theseus
+    def solve(self) -> list[str]:
+        start = self._entry_coord
+        end = self._exit_coord
+        path: list[str] = []
+        if start == end:
+            return path
+        queue = deque([start])
+        visited = {start}
+        came_from: dict[tuple[int, int], tuple[tuple[int, int], str]] = {}
+
+        while queue:
+            current = queue.popleft()
+            if current == end:
+                break
+            x, y = current
+            for dir, bit, (dx, dy) in DIRECTIONS:
+                # open wall check. if yes wall is open so walkable
+                if self._grid[y][x] & bit == 0:
+                    neighbor = (x + dx, y + dy)
+                    # skipping off grid (entry and exit doorway)
+                    if not (
+                        0 <= neighbor[0] < self._width and
+                        0 <= neighbor[1] < self._height
+                    ):
+                        continue
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        queue.append(neighbor)
+                        came_from[neighbor] = (current, dir)
+
+        if end not in came_from:
+            raise ValueError(f"No path found between {start} and {end}")
+        current = end
+        while current != start:
+            parent, direction = came_from[current]
+            path.append(direction)
+            current = parent
+
+        path.reverse()
+        return path
+
+    # making a perfect maze imperfect. U monster!
+    def _add_loop(self, rejected_walls: list[tuple[int, int]]) -> list[tuple[int,  int]]:
+        if self._perfect or not rejected_walls:
+            return []
+        rng = random.Random(self._seed)
+        return [rng.choice(rejected_walls)]
+
 
 # check for 3x3 open block to run through every possible cases
 def find_open_3x3_blocks(maze: MazeGenerator) -> list[tuple[int, int]]:
@@ -195,40 +251,6 @@ def find_open_3x3_blocks(maze: MazeGenerator) -> list[tuple[int, int]]:
             if maze._has_open_3x3(x0, y0):
                 violations.append((x0, y0))
     return violations
-
-
-# BFS: Theseus
-def solve(self) -> list[str]:
-    start = self._entry_coord
-    end = self._exit_coord
-    queue = deque([start])
-    visited = {start}
-    came_from: dict[tuple[int, int], tuple[tuple[int, int], str]] = {}
-    
-    while queue:
-        current = queue.popleft()
-        if current == end:
-            break
-        x, y = current
-        for dir, bit, (dx, dy) in DIRECTIONS:
-            # open wall check. if yes wall is open so walkable
-            if self._grid[y][x] & bit == 0:
-                neighbor = (x + dx, y + dy)
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append(neighbor)
-                    came_from[neighbor] = (current, dir)
-
-    path: list[str] = []
-    current = end
-
-    while current != start:
-        parent, direction = came_from[current]
-        path.append(direction)
-        current = parent
-
-    path.reverse()
-    return path
 
 
 #  method to verify if the created maze is consistent, ie the properties
