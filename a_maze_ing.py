@@ -34,6 +34,7 @@ def print_maze(maze: str):
     EXIT = '\x1b[31m██\x1b[0m'
     WALLS = '\x1b[38;2;140;140;140m██\x1b[0m'
     CELL = '██'
+    FT = '\x1b[94m██\x1b[0m'
 
     def draw(mazed: list[list[str]]):
         # Actual printing
@@ -50,35 +51,38 @@ def print_maze(maze: str):
         # correct maze but does not ensure consistency of output
         # so it will always print a correct maze correctly, but it may
         # also print an incorrect maze
-        breakpoint()
+        # breakpoint()
         for line in range(0, len(lines)):
             for cell in range(0, len(lines[0])):
+                ft = False
                 try:
                     closed = compute_closed(15 - htod(lines[line][cell]))
                 except Exception:
                     pass
                 mline = (line * 2) + 1
                 mcell = (cell * 2) + 1
-                if ({1, 2, 4, 8} == set(closed)):
-                    mazed[mline][mcell] = [WALLS]
                 for c in closed:
-                    if (c == 1):
-                        mazed[mline - 1][mcell] = [CELL]
-                    if (c == 2):
-                        mazed[mline][mcell + 1] = [CELL]
-                    if (c == 4):
-                        mazed[mline + 1][mcell] = [CELL]
                     if (c == 8):
                         mazed[mline][mcell - 1] = [CELL]
-                for o in ({1, 2, 4, 8} - set(closed)):
-                    if (o == 1):
-                        mazed[mline - 1][mcell] = [WALLS]
-                    if (o == 2):
-                        mazed[mline][mcell + 1] = [WALLS]
-                    if (o == 4):
-                        mazed[mline + 1][mcell] = [WALLS]
+                    elif (c == 4):
+                        mazed[mline + 1][mcell] = [CELL]
+                    elif (c == 2):
+                        mazed[mline][mcell + 1] = [CELL]
+                    elif (c == 1):
+                        mazed[mline - 1][mcell] = [CELL]
+                open = {1, 2, 4, 8} - set(closed)
+                if ({1, 2, 4, 8} == open):
+                    mazed[mline][mcell] = [FT]
+                    ft = True
+                for o in open:
                     if (o == 8):
-                        mazed[mline][mcell - 1] = [WALLS]
+                        mazed[mline][mcell - 1] = [WALLS if not ft else FT]
+                    elif (o == 4):
+                        mazed[mline + 1][mcell] = [WALLS]
+                    elif (o == 2):
+                        mazed[mline][mcell + 1] = [WALLS]
+                    elif (o == 1):
+                        mazed[mline - 1][mcell] = [WALLS]
 
     # preliminary parsing of ooutput file
     splat: list[str] = maze.split("\n\n")
@@ -97,10 +101,6 @@ def print_maze(maze: str):
     for i in range((2 * height) + 1):
         mazed.append([])
         for j in range((2 * width) + 1):
-            # if (i, j) == entry:
-            #     mazed[i].append([f'{ENTRY}'])
-            # elif (i, j) == exit:
-            #     mazed[i].append([f'{EXIT}'])
             if (i % 2 == 0 or j % 2 == 0):
                 mazed[i].append([f"{WALLS}"])
             else:
@@ -162,7 +162,7 @@ def main():
         print(e)
         exit(1)
     # with open("output_test_5x5.txt") as file:
-    with open("output_25x20.txt") as file:
+    with open("maze_output.txt") as file:
         print_maze(file.read())
 
 
