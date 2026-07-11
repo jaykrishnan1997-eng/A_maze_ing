@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/11 11:58:19 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/11 13:01:18 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -236,7 +236,9 @@ class MazeGenerator:
         return path
 
     # making a perfect maze imperfect. U monster!
-    def _add_loop(self, rejected_walls: list[tuple[int, int]]) -> list[tuple[int,  int]]:
+    def _add_loop(
+        self, rejected_walls: list[tuple[int, int]]
+    ) -> list[tuple[int,  int]]:
         if self._perfect or not rejected_walls:
             return []
         rng = random.Random(self._seed)
