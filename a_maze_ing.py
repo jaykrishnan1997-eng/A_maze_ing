@@ -1,6 +1,7 @@
 import sys
 import time
 
+
 def htod(h: str):
     if (type(h) is str and h.capitalize() in ['A', 'B', 'C', 'D', 'E', 'F']):
         return (10 + ['A', 'B', 'C', 'D', 'E', 'F'].index(h.capitalize()))
@@ -36,6 +37,7 @@ def print_maze(maze: str):
     EXIT = '\x1b[31m██\x1b[0m'
     WALLS = '\x1b[38;2;140;140;140m██\x1b[0m'
     CELL = '██'
+    FT = '\x1b[94m██\x1b[0m'
     BLINK_FT = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
     FTT = '\x1b[38;5;117m██\x1b[0m'
 
@@ -48,30 +50,24 @@ def print_maze(maze: str):
             print()
         print()
         print(WALLS * len(mazed[0]))
-        # msg = "\x1b[47mWelcome to A-MAZE-ING\x1b[0m\n"
-        # breakpoint()
-        # print(msg)
 
-    def move(mazed: list[list[str]], entry: list[int], path: str):
+    def move(mazed: list[list[str]], entry: list[int], path: str,
+             sleep: float = 0.01):
         if (len(path) == 0):
             return
         if (len(path) == 1):
             entry[0] = entry[0] - 1 if path == 'N' else entry[0]
-            entry[1] = entry[1] + 1 if path == 'W' else entry[1]
+            entry[1] = entry[1] - 1 if path == 'W' else entry[1]
             entry[0] = entry[0] + 1 if path == 'S' else entry[0]
-            entry[1] = entry[1] - 1 if path == 'E' else entry[1]
-            mazed[(entry[0] * 2) + 1][(entry[1] * 2) + 1] = '\x1b[38mXX\x1b[0m'
+            entry[1] = entry[1] + 1 if path == 'E' else entry[1]
+            mazed[(entry[0] * 2) + 1][(entry[1] * 2) + 1] = [FT]
             draw(mazed)
+            time.sleep(sleep)
             return entry
         if (len(path) > 1):
             move(mazed, move(mazed, entry, path[0]), path[1:])
 
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
-        # this function is only closing non-zero values which prints the
-        # correct maze but does not ensure consistency of output
-        # so it will always print a correct maze correctly, but it may
-        # also print an incorrect maze
-        # breakpoint()
         for line in range(0, len(lines)):
             for cell in range(0, len(lines[0])):
                 ft = False
@@ -110,7 +106,7 @@ def print_maze(maze: str):
     resplat = splat[1].split("\n")
     entry: tuple[int] = tuple([int(x) for x in resplat[0].split(",")])
     exit: tuple[int] = tuple([int(x) for x in resplat[1].split(",")])
-    path: str = resplat[2]
+    path: str = splat[2].split('\n')[0]
     lines: list[str] = hex.split('\n')
     width: int = len(lines[0])
     height: int = len(lines)
@@ -138,9 +134,7 @@ def print_maze(maze: str):
         draw(mazed)
         command = input("\nP: print path\nQ: quit\n\n")
         if command.capitalize() == "P":
-            # breakpoint()
             move(mazed, list(entry), path)
-            time.sleep(10)
 
 
 def config_parse(config: str):
