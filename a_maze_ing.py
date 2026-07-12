@@ -36,12 +36,46 @@ def print_maze(maze: str):
     ENTRY = '\x1b[32m██\x1b[0m'
     EXIT = '\x1b[31m██\x1b[0m'
     WALLS = '\x1b[38;2;140;140;140m██\x1b[0m'
+    WALLS_TWO = '\x1b[38;2;140;140;140m██\x1b[0m'
     CELL = '██'
     PATH = '\x1b[94m▓▓\x1b[0m'
+    FT_ONE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
+    FT_TWO = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
+    FT_THREE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
     BLINK_FT = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
     FTT = '\x1b[38;5;117m██\x1b[0m'
+    PRINTING_PATH_ASCII = r"""
+    ██████╗ ██████╗ ██╗███╗   ██╗████████╗██╗███╗   ██╗ ██████╗
+    ██╔══██╗██╔══██╗██║████╗  ██║╚══██╔══╝██║████╗  ██║██╔════╝
+    ██████╔╝██████╔╝██║██╔██╗ ██║   ██║   ██║██╔██╗ ██║██║  ███╗
+    ██╔═══╝ ██╔══██╗██║██║╚██╗██║   ██║   ██║██║╚██╗██║██║   ██║
+    ██║     ██║  ██║██║██║ ╚████║   ██║   ██║██║ ╚████║╚██████╔╝
+    ╚═╝     ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝
 
-    def draw(mazed: list[list[str]]):
+    ██████╗  █████╗ ████████╗██╗  ██╗
+    ██╔══██╗██╔══██╗╚══██╔══╝██║  ██║
+    ██████╔╝███████║   ██║   ███████║
+    ██╔═══╝ ██╔══██║   ██║   ██╔══██║
+    ██║     ██║  ██║   ██║   ██║  ██║
+    ╚═╝     ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+    """
+    HIDING_PATH_ASCII = r"""
+    ██╗  ██╗██╗██████╗ ██╗███╗   ██╗ ██████╗
+    ██║  ██║██║██╔══██╗██║████╗  ██║██╔════╝
+    ███████║██║██║  ██║██║██╔██╗ ██║██║  ███╗
+    ██╔══██║██║██║  ██║██║██║╚██╗██║██║   ██║
+    ██║  ██║██║██████╔╝██║██║ ╚████║╚██████╔╝
+    ╚═╝  ╚═╝╚═╝╚═════╝ ╚═╝╚═╝  ╚═══╝ ╚═════╝
+
+    ██████╗  █████╗ ████████╗██╗  ██╗
+    ██╔══██╗██╔══██╗╚══██╔══╝██║  ██║
+    ██████╔╝███████║   ██║   ███████║
+    ██╔═══╝ ██╔══██║   ██║   ██╔══██║
+    ██║     ██║  ██║   ██║   ██║  ██║
+    ╚═╝     ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+    """
+
+    def draw(mazed: list[list[str]], msg: str = ""):
         # Actual printing
         print(CLEAR_SCREEN)
         for line in mazed:
@@ -50,6 +84,7 @@ def print_maze(maze: str):
             print()
         print()
         print(WALLS * len(mazed[0]))
+        print("\n" + msg + "\n\n" + WALLS * len(mazed[0])) if msg != "" else None
 
     def move(mazed: list[list[str]], entry: list[int], path: str,
              sleep: float = 0.01):
@@ -61,7 +96,7 @@ def print_maze(maze: str):
             entry[0] = entry[0] + 1 if path == 'S' else entry[0]
             entry[1] = entry[1] + 1 if path == 'E' else entry[1]
             mazed[(entry[0] * 2) + 1][(entry[1] * 2) + 1] = [PATH]
-            draw(mazed)
+            draw(mazed, msg=PRINTING_PATH_ASCII)
             time.sleep(sleep)
             return entry
         if (len(path) > 1):
@@ -79,7 +114,7 @@ def print_maze(maze: str):
             for cell in line:
                 if cell[0] == PATH:
                     cell[0] = CELL
-                    draw(mazed)
+                    draw(mazed, HIDING_PATH_ASCII)
                     time.sleep(sleep)
 
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
@@ -147,7 +182,10 @@ def print_maze(maze: str):
     command = ""
     while (command.capitalize() != "Q"):
         draw(mazed)
-        command = input("\nP: print path \ hide path\nQ: quit\n\n")
+        print("\n\t1:\tnew maze\t\t"
+              "\t2:\tprint path \ hide path\n\t3:\tchange walls\t\t\t4:\tchange 42\n\n5/Q:\tquit\n")
+        print(WALLS * len(mazed[0]))
+        command = input()
         if command.capitalize() == "P":
             if not is_pathed(mazed):
                 move(mazed, list(entry), path)
