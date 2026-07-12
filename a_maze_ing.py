@@ -37,7 +37,7 @@ def print_maze(maze: str):
     EXIT = '\x1b[31m██\x1b[0m'
     WALLS = '\x1b[38;2;140;140;140m██\x1b[0m'
     CELL = '██'
-    FT = '\x1b[94m██\x1b[0m'
+    PATH = '\x1b[94m▓▓\x1b[0m'
     BLINK_FT = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
     FTT = '\x1b[38;5;117m██\x1b[0m'
 
@@ -60,12 +60,27 @@ def print_maze(maze: str):
             entry[1] = entry[1] - 1 if path == 'W' else entry[1]
             entry[0] = entry[0] + 1 if path == 'S' else entry[0]
             entry[1] = entry[1] + 1 if path == 'E' else entry[1]
-            mazed[(entry[0] * 2) + 1][(entry[1] * 2) + 1] = [FT]
+            mazed[(entry[0] * 2) + 1][(entry[1] * 2) + 1] = [PATH]
             draw(mazed)
             time.sleep(sleep)
             return entry
         if (len(path) > 1):
             move(mazed, move(mazed, entry, path[0]), path[1:])
+
+    def is_pathed(mazed: list[list[str]]):
+        for line in mazed:
+            for cell in line:
+                if cell[0] == PATH:
+                    return True
+        return False
+
+    def unpath(mazed: list[list[str]], sleep: float = 0.01):
+        for line in mazed:
+            for cell in line:
+                if cell[0] == PATH:
+                    cell[0] = CELL
+                    draw(mazed)
+                    time.sleep(sleep)
 
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
         for line in range(0, len(lines)):
@@ -132,9 +147,12 @@ def print_maze(maze: str):
     command = ""
     while (command.capitalize() != "Q"):
         draw(mazed)
-        command = input("\nP: print path\nQ: quit\n\n")
+        command = input("\nP: print path \ hide path\nQ: quit\n\n")
         if command.capitalize() == "P":
-            move(mazed, list(entry), path)
+            if not is_pathed(mazed):
+                move(mazed, list(entry), path)
+            elif is_pathed(mazed):
+                unpath(mazed)
 
 
 def config_parse(config: str):
