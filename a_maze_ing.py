@@ -26,18 +26,15 @@ def compute_closed(cell: int) -> tuple:
 
 
 def print_maze(maze: str):
-    # WALL_COLOR = ''
-    # WALL_CHARACTER = ''
-    # ENTRY_COLOR = ''
-    # ENTRY_CHARACTER = ''
-    # EXIT_COLOR = ''
-    # EXIT_CHARACTER = ''
     CLEAR_SCREEN = '\x1b[2J\x1b[H'
     ENTRY = '\x1b[32m██\x1b[0m'
     EXIT = '\x1b[31m██\x1b[0m'
     WALLS = '\x1b[38;2;140;140;140m██\x1b[0m'
-    WALLS_TWO = '\x1b[38;2;140;140;140m██\x1b[0m'
+    WALLS_ONE = '\x1b[38;2;140;140;140m██\x1b[0m'
+    WALLS_TWO = '\033[38;5;46m██\x1b[0m'
     CELL = '██'
+    CELL_ONE = '██'
+    CELL_TWO = '  '
     PATH = '\x1b[94m▓▓\x1b[0m'
     FT_ONE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
     FT_TWO = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
@@ -74,6 +71,37 @@ def print_maze(maze: str):
     ██║     ██║  ██║   ██║   ██║  ██║
     ╚═╝     ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
     """
+    CHANGING_WALLS = r"""
+     ██████╗██╗  ██╗ █████╗ ███╗   ██╗ ██████╗ ██╗███╗   ██╗ ██████╗
+    ██╔════╝██║  ██║██╔══██╗████╗  ██║██╔════╝ ██║████╗  ██║██╔════╝
+    ██║     ███████║███████║██╔██╗ ██║██║  ███╗██║██╔██╗ ██║██║  ███╗
+    ██║     ██╔══██║██╔══██║██║╚██╗██║██║   ██║██║██║╚██╗██║██║   ██║
+    ╚██████╗██║  ██║██║  ██║██║ ╚████║╚██████╔╝██║██║ ╚████║╚██████╔╝
+     ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝╚═╝  ╚═══╝ ╚═════╝
+
+    ██╗    ██╗ █████╗ ██╗     ██╗     ███████╗
+    ██║    ██║██╔══██╗██║     ██║     ██╔════╝
+    ██║ █╗ ██║███████║██║     ██║     ███████╗
+    ██║███╗██║██╔══██║██║     ██║     ╚════██║
+    ╚███╔███╔╝██║  ██║███████╗███████╗███████║
+     ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝
+    """
+
+    def blank_maze(height: int, width: int):
+        mazed: list[list[str]] = []
+        for i in range((2 * height) + 1):
+            mazed.append([])
+            for j in range((2 * width) + 1):
+                if (i % 2 == 0 or j % 2 == 0):
+                    mazed[i].append([WALLS])
+                else:
+                    if (((i - 1) / 2, (j - 1) / 2) == entry):
+                        mazed[i].append([ENTRY])
+                    elif (((i - 1) / 2, (j - 1) / 2) == exit):
+                        mazed[i].append([EXIT])
+                    else:
+                        mazed[i].append([CELL])
+        return mazed
 
     def draw(mazed: list[list[str]], msg: str = ""):
         # Actual printing
@@ -84,7 +112,9 @@ def print_maze(maze: str):
             print()
         print()
         print(WALLS * len(mazed[0]))
-        print("\n" + msg + "\n\n" + WALLS * len(mazed[0])) if msg != "" else None
+        print(
+            "\n" + msg + "\n\n" + WALLS * len(mazed[0])
+            ) if msg != "" else None
 
     def move(mazed: list[list[str]], entry: list[int], path: str,
              sleep: float = 0.01):
@@ -109,12 +139,13 @@ def print_maze(maze: str):
                     return True
         return False
 
-    def unpath(mazed: list[list[str]], sleep: float = 0.01):
+    def unpath(mazed: list[list[str]], replace: tuple = (PATH, CELL),
+               sleep: float = 0.01, msg: str = HIDING_PATH_ASCII):
         for line in mazed:
             for cell in line:
-                if cell[0] == PATH:
-                    cell[0] = CELL
-                    draw(mazed, HIDING_PATH_ASCII)
+                if cell[0] == replace[0]:
+                    cell[0] = replace[1]
+                    draw(mazed, msg)
                     time.sleep(sleep)
 
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
@@ -160,37 +191,36 @@ def print_maze(maze: str):
     lines: list[str] = hex.split('\n')
     width: int = len(lines[0])
     height: int = len(lines)
-    mazed: list[str] = []
     # Making an array of arrays that stores a blank maze of desired
     # dimensions
-    for i in range((2 * height) + 1):
-        mazed.append([])
-        for j in range((2 * width) + 1):
-            if (i % 2 == 0 or j % 2 == 0):
-                mazed[i].append([f"{WALLS}"])
-            else:
-                if (((i - 1) / 2, (j - 1) / 2) == entry):
-                    mazed[i].append([f"{ENTRY}"])
-                elif (((i - 1) / 2, (j - 1) / 2) == exit):
-                    mazed[i].append([f"{EXIT}"])
-                else:
-                    mazed[i].append([f"{CELL}"])
+    mazed: list[list[str]] = blank_maze(height, width)
     # Applying walls from output file to the blank maze
     apply_walls(mazed, lines, entry, exit)
-    # draw maze!!
-    # draw(mazed)
     command = ""
     while (command.capitalize() != "Q"):
         draw(mazed)
         print("\n\t1:\tnew maze\t\t"
-              "\t2:\tprint path \ hide path\n\t3:\tchange walls\t\t\t4:\tchange 42\n\n5/Q:\tquit\n")
+              "\t2:\tprint path / hide path\n\t3:\tchange walls"
+              "\t\t\t4:\tchange 42\n\n5/Q:\tquit\n")
         print(WALLS * len(mazed[0]))
         command = input()
+        # PRINT/HIDE PATH
         if command.capitalize() == "P":
             if not is_pathed(mazed):
                 move(mazed, list(entry), path)
             elif is_pathed(mazed):
                 unpath(mazed)
+        if command == '3':
+            if WALLS == WALLS_ONE:
+                unpath(mazed, replace=(WALLS_ONE, WALLS_TWO), msg=CHANGING_WALLS, sleep=0.005)
+                unpath(mazed, replace=(CELL_ONE, CELL_TWO), msg=CHANGING_WALLS, sleep=0.005)
+                WALLS = WALLS_TWO
+                CELL = CELL_TWO
+            else:
+                unpath(mazed, replace=(WALLS_TWO, WALLS_ONE), msg=CHANGING_WALLS, sleep=0.005)
+                unpath(mazed, replace=(CELL_TWO, CELL_ONE), msg=CHANGING_WALLS, sleep=0.005)
+                WALLS = WALLS_ONE
+                CELL = CELL_ONE
 
 
 def config_parse(config: str):
