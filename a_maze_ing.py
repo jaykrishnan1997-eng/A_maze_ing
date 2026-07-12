@@ -26,15 +26,17 @@ def compute_closed(cell: int) -> tuple:
 
 
 def print_maze(maze: str):
-    CLEAR_SCREEN = '\x1b[2J\x1b[H'
+    CLEAR_SCREEN_ONE = "\x1b[H"
+    CLEAR_SCREEN_TWO = '\x1b[2J\x1b[H'
+    CLEAR_SCREEN = CLEAR_SCREEN_TWO
     ENTRY = '\x1b[32m██\x1b[0m'
     EXIT = '\x1b[31m██\x1b[0m'
-    WALLS = '\x1b[38;2;140;140;140m██\x1b[0m'
     WALLS_ONE = '\x1b[38;2;140;140;140m██\x1b[0m'
     WALLS_TWO = '\033[38;5;46m██\x1b[0m'
-    CELL = '██'
+    WALLS = WALLS_ONE
     CELL_ONE = '██'
     CELL_TWO = '  '
+    CELL = CELL_ONE
     PATH = '\x1b[94m▓▓\x1b[0m'
     FT_ONE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
     FT_TWO = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
@@ -145,8 +147,8 @@ def print_maze(maze: str):
             for cell in line:
                 if cell[0] == replace[0]:
                     cell[0] = replace[1]
-                    draw(mazed, msg)
-                    time.sleep(sleep)
+            draw(mazed, msg)
+            time.sleep(sleep)
 
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
         for line in range(0, len(lines)):
@@ -212,13 +214,17 @@ def print_maze(maze: str):
                 unpath(mazed)
         if command == '3':
             if WALLS == WALLS_ONE:
-                unpath(mazed, replace=(WALLS_ONE, WALLS_TWO), msg=CHANGING_WALLS, sleep=0.005)
-                unpath(mazed, replace=(CELL_ONE, CELL_TWO), msg=CHANGING_WALLS, sleep=0.005)
+                unpath(mazed, replace=(WALLS_ONE, WALLS_TWO),
+                       msg=CHANGING_WALLS, sleep=0.01)
+                unpath(mazed, replace=(CELL_ONE, CELL_TWO),
+                       msg=CHANGING_WALLS, sleep=0.01)
                 WALLS = WALLS_TWO
                 CELL = CELL_TWO
             else:
-                unpath(mazed, replace=(WALLS_TWO, WALLS_ONE), msg=CHANGING_WALLS, sleep=0.005)
-                unpath(mazed, replace=(CELL_TWO, CELL_ONE), msg=CHANGING_WALLS, sleep=0.005)
+                unpath(mazed, replace=(WALLS_TWO, WALLS_ONE),
+                       msg=CHANGING_WALLS, sleep=0.01)
+                unpath(mazed, replace=(CELL_TWO, CELL_ONE),
+                       msg=CHANGING_WALLS, sleep=0.01)
                 WALLS = WALLS_ONE
                 CELL = CELL_ONE
 
