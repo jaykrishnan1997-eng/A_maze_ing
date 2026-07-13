@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/11 13:01:18 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/13 09:59:44 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -277,3 +277,16 @@ def verify_coherence(grid: list[list[int]]) -> list[str]:
                 if bool(curr_cell & 4) != bool(south_cell & 1):
                     errors.append(f"S wall of ({x},{y}) is broken")
     return errors
+
+
+def write_output(
+    grid: list[list[int]], entry: tuple[int, int], exit: tuple[int, int],
+    path: list[str], filename: str
+) -> None:
+    with open(filename, "w") as f:
+        for row in grid:
+            f.write("".join(format(cell, "X") for cell in row) + "\n")
+        f.write("\n")
+        f.write(f"{entry[0]},{entry[1]}\n")
+        f.write(f"{exit[0]},{exit[1]}\n")
+        f.write("".join(path) + "\n")

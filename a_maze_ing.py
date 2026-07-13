@@ -185,13 +185,13 @@ def print_maze(maze: str):
                     elif (o == 1):
                         mazed[mline - 1][mcell] = [WALLS]
 
-    # preliminary parsing of ooutput file
+    # preliminary parsing of output file
     splat: list[str] = maze.split("\n\n")
     hex: str = splat[0]
-    resplat = splat[1].split("\n")
-    entry: tuple[int] = tuple([int(x) for x in resplat[0].split(",")])
-    exit: tuple[int] = tuple([int(x) for x in resplat[1].split(",")])
-    path: str = splat[2].split('\n')[0]
+    lines_after = splat[1].split("\n")
+    entry: tuple[int] = tuple([int(x) for x in lines_after[0].split(",")])
+    exit: tuple[int] = tuple([int(x) for x in lines_after[1].split(",")])
+    path: str = lines_after[2]
     lines: list[str] = hex.split('\n')
     width: int = len(lines[0])
     height: int = len(lines)
