@@ -20,6 +20,9 @@ clean:
 	rm -rf dist/*.tar.gz
 	find . -name "*.pyc" -delete
 
+# fclean: clean
+# 	rm -rf .venv
+
 lint:
 	flake8 . --exclude=.venv
 	mypy . \
