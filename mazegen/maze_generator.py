@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/13 16:16:58 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/13 16:18:44 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -87,7 +87,7 @@ class MazeGenerator:
         if exit_coord in self._excluded:
             raise ValueError(
                 "Exit cannot be inside 42"
-            ) 
+            )
         self._entry_coord = entry_coord
         self._exit_coord = exit_coord
         self._perfect = perfect
@@ -133,10 +133,14 @@ class MazeGenerator:
                     continue
                 # for the east wall
                 if x < self._width - 1 and (x + 1, y) not in excluded:
-                    walls.append((self._cell_id(x, y), self._cell_id(x + 1, y)))
+                    walls.append(
+                        (self._cell_id(x, y),
+                         self._cell_id(x + 1, y)))
                 # for the soth wall
                 if y < self._height - 1 and (x, y + 1) not in excluded:
-                    walls.append((self._cell_id(x, y), self._cell_id(x, y + 1)))
+                    walls.append(
+                        (self._cell_id(x, y),
+                         self._cell_id(x, y + 1)))
         return walls
 
     def _run_kruskal(
