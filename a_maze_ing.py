@@ -1,5 +1,7 @@
 import sys
 import time
+import typing
+from mazegen import MazeGenerator
 
 
 def htod(h: str):
@@ -25,7 +27,7 @@ def compute_closed(cell: int) -> tuple:
                         lambda x: x <= cell - f - s - t, fields))))[0],)
 
 
-def print_maze(maze: str):
+def print_maze(maze: str, pconfig: dict[str, typing.Any]):
     CLEAR_SCREEN_ONE = "\x1b[H"
     CLEAR_SCREEN_TWO = '\x1b[2J\x1b[H'
     CLEAR_SCREEN = CLEAR_SCREEN_TWO
@@ -99,9 +101,9 @@ def print_maze(maze: str):
                 if (i % 2 == 0 or j % 2 == 0):
                     mazed[i].append([WALLS])
                 else:
-                    if (((i - 1) / 2, (j - 1) / 2) == entry):
+                    if (((i - 1) / 2, (j - 1) / 2) == pconfig["ENTRY"]):
                         mazed[i].append([ENTRY])
-                    elif (((i - 1) / 2, (j - 1) / 2) == exit):
+                    elif (((i - 1) / 2, (j - 1) / 2) == pconfig["EXIT"]):
                         mazed[i].append([EXIT])
                     else:
                         mazed[i].append([CELL])
@@ -185,21 +187,25 @@ def print_maze(maze: str):
                     elif (o == 1):
                         mazed[mline - 1][mcell] = [WALLS]
 
-    # preliminary parsing of output file
-    splat: list[str] = maze.split("\n\n")
-    hex: str = splat[0]
-    lines_after = splat[1].split("\n")
-    entry: tuple[int] = tuple([int(x) for x in lines_after[0].split(",")])
-    exit: tuple[int] = tuple([int(x) for x in lines_after[1].split(",")])
-    path: str = lines_after[2]
-    lines: list[str] = hex.split('\n')
-    width: int = len(lines[0])
-    height: int = len(lines)
+    def parse_maze(maze: str):
+        # preliminary parsing of output file
+        splat: list[str] = maze.split("\n\n")
+        hex: str = splat[0]
+        lines_after = splat[1].split("\n")
+        entry: tuple[int] = tuple([int(x) for x in lines_after[0].split(",")])
+        exit: tuple[int] = tuple([int(x) for x in lines_after[1].split(",")])
+        path: str = lines_after[2]
+        lines: list[str] = hex.split('\n')
+        width: int = len(lines[0])
+        height: int = len(lines)
+        return {'HEIGHT': height, 'WIDTH': width, 'ENTRY': entry,
+                'EXIT': exit, 'PATH': path, 'LINES': lines}
     # Making an array of arrays that stores a blank maze of desired
     # dimensions
-    mazed: list[list[str]] = blank_maze(height, width)
+    pmaze = parse_maze(maze)
+    mazed: list[list[str]] = blank_maze(pmaze['HEIGHT'], pmaze['WIDTH'])
     # Applying walls from output file to the blank maze
-    apply_walls(mazed, lines, entry, exit)
+    apply_walls(mazed, pmaze['LINES'], pmaze['ENTRY'], pmaze['EXIT'])
     command = ""
     while (command.capitalize() != "Q" and command != '5'):
         draw(mazed)
@@ -208,10 +214,22 @@ def print_maze(maze: str):
               "\t\t\t\n\n5/Q:\tquit\n")
         print(WALLS * len(mazed[0]))
         command = input()
+        if command == '1' or command.capitalize() == 'N':
+            maze = MazeGenerator(
+                    pconfig["WIDTH"], pconfig["HEIGHT"],
+                    pconfig["ENTRY"], pconfig["EXIT"], True, seed=None)
+            grid = maze.get_grid()
+            path = maze.solve()
+            write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
+                         path, pconfig["OUTPUT_FILE"][0])
+            with open(pconfig["OUTPUT_FILE"][0]) as file:
+                pmaze = parse_maze(file.read())
+                mazed = blank_maze(pmaze['HEIGHT'], pmaze['WIDTH'])
+            apply_walls(mazed, pmaze['LINES'], pmaze['ENTRY'], pmaze['EXIT'])
         # PRINT/HIDE PATH
         if command == '2' or command.capitalize() == "P":
             if not is_pathed(mazed):
-                move(mazed, list(entry), path)
+                move(mazed, list(pmaze["ENTRY"]), pmaze["PATH"])
             elif is_pathed(mazed):
                 unpath(mazed, replace=(PATH, CELL))
         if command == '3':
@@ -262,6 +280,16 @@ def config_parse(config: str):
     return (rconfig)
 
 
+def write_output(grid, entry, exit, path, filename):
+    with open(filename, "w") as f:
+        for row in grid:
+            f.write("".join(format(cell, "X") for cell in row) + "\n")
+        f.write("\n")
+        f.write(f"{entry[0]},{entry[1]}\n")
+        f.write(f"{exit[0]},{exit[1]}\n")
+        f.write("".join(path) + "\n")
+
+
 def main():
     if (len(sys.argv) != 2):
         print("\x1b[41mUsage: python3 a-maze-ing.py config.txt")
@@ -276,9 +304,16 @@ def main():
     except Exception as e:
         print(e)
         exit(1)
-    # with open("output_test_5x5.txt") as file:
-    with open("output_25x20.txt") as file:
-        print_maze(file.read())
+
+    maze = MazeGenerator(
+            pconfig["WIDTH"], pconfig["HEIGHT"],
+            pconfig["ENTRY"], pconfig["EXIT"], True, seed=1)
+    grid = maze.get_grid()
+    path = maze.solve()
+    write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
+                 path, pconfig["OUTPUT_FILE"][0])
+    with open(pconfig["OUTPUT_FILE"][0]) as file:
+        print_maze(file.read(), pconfig)
 
 
 if __name__ == "__main__":
