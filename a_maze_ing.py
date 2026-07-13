@@ -37,7 +37,9 @@ def print_maze(maze: str):
     CELL_ONE = '██'
     CELL_TWO = '  '
     CELL = CELL_ONE
-    PATH = '\x1b[94m▓▓\x1b[0m'
+    PATH_ONE = '\x1b[94m██\x1b[0m'
+    PATH_TWO = '\x1b[1;96m██\x1b[0m'
+    PATH = PATH_TWO
     FT_ONE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
     FT_TWO = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
     FT_THREE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
@@ -199,19 +201,19 @@ def print_maze(maze: str):
     # Applying walls from output file to the blank maze
     apply_walls(mazed, lines, entry, exit)
     command = ""
-    while (command.capitalize() != "Q"):
+    while (command.capitalize() != "Q" and command != '5'):
         draw(mazed)
         print("\n\t1:\tnew maze\t\t"
               "\t2:\tprint path / hide path\n\t3:\tchange walls"
-              "\t\t\t4:\tchange 42\n\n5/Q:\tquit\n")
+              "\t\t\t\n\n5/Q:\tquit\n")
         print(WALLS * len(mazed[0]))
         command = input()
         # PRINT/HIDE PATH
-        if command.capitalize() == "P":
+        if command == '2' or command.capitalize() == "P":
             if not is_pathed(mazed):
                 move(mazed, list(entry), path)
             elif is_pathed(mazed):
-                unpath(mazed)
+                unpath(mazed, replace=(PATH, CELL))
         if command == '3':
             if WALLS == WALLS_ONE:
                 unpath(mazed, replace=(WALLS_ONE, WALLS_TWO),
