@@ -99,9 +99,9 @@ def print_maze(maze: str):
                 if (i % 2 == 0 or j % 2 == 0):
                     mazed[i].append([WALLS])
                 else:
-                    if (((i - 1) / 2, (j - 1) / 2) == entry):
+                    if (((j - 1) / 2, (i - 1) / 2) == entry):
                         mazed[i].append([ENTRY])
-                    elif (((i - 1) / 2, (j - 1) / 2) == exit):
+                    elif (((j - 1) / 2, (i - 1) / 2) == exit):
                         mazed[i].append([EXIT])
                     else:
                         mazed[i].append([CELL])
@@ -125,11 +125,15 @@ def print_maze(maze: str):
         if (len(path) == 0):
             return
         if (len(path) == 1):
-            entry[0] = entry[0] - 1 if path == 'N' else entry[0]
-            entry[1] = entry[1] - 1 if path == 'W' else entry[1]
-            entry[0] = entry[0] + 1 if path == 'S' else entry[0]
-            entry[1] = entry[1] + 1 if path == 'E' else entry[1]
-            mazed[(entry[0] * 2) + 1][(entry[1] * 2) + 1] = [PATH]
+            entry[1] = entry[1] - 1 if path == 'N' else entry[1]
+            entry[0] = entry[0] - 1 if path == 'W' else entry[0]
+            entry[1] = entry[1] + 1 if path == 'S' else entry[1]
+            entry[0] = entry[0] + 1 if path == 'E' else entry[0]
+
+            mazed[(entry[1] * 2) + 1][(entry[0] * 2) + 1] = [PATH]
+
+            # Repaint the exit after drawing path
+            mazed[(exit[1] * 2) + 1][(exit[0] * 2) + 1] = [EXIT]
             draw(mazed, msg=PRINTING_PATH_ASCII)
             time.sleep(sleep)
             return entry
@@ -151,6 +155,10 @@ def print_maze(maze: str):
                     cell[0] = replace[1]
             draw(mazed, msg)
             time.sleep(sleep)
+        mazed[(entry[1] * 2) + 1][(entry[0] * 2) + 1] = [ENTRY]
+        # Repaint the exit after drawing path
+        mazed[(exit[1] * 2) + 1][(exit[0] * 2) + 1] = [EXIT]
+
 
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
         for line in range(0, len(lines)):

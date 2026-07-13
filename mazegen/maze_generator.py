@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/13 09:59:44 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/13 11:32:44 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -76,7 +76,7 @@ class MazeGenerator:
         removed_walls, rejected_walls = self._run_kruskal()
         loop_walls = self._add_loop(rejected_walls)
         self._apply_walls(removed_walls + loop_walls)
-        self._open_entry_exit()
+        # self._open_entry_exit()
 
     #  make a copy of the maze
     def get_grid(self) -> list[list[int]]:
@@ -147,17 +147,17 @@ class MazeGenerator:
                 self._grid[ay][ax] &= ~1  # clear N bit on a
                 self._grid[by][bx] &= ~4  # clear S bit on b
 
-    # giving opening for the entry cell and exit cell
-    def _open_entry_exit(self) -> None:
-        for x, y in [self._entry_coord, self._exit_coord]:
-            if y == 0:
-                self._grid[y][x] &= ~1  # open North
-            elif y == self._height - 1:
-                self._grid[y][x] &= ~4  # open South
-            elif x == 0:
-                self._grid[y][x] &= ~8  # open West
-            elif x == self._width - 1:
-                self._grid[y][x] &= ~2  # open East
+    # # giving opening for the entry cell and exit cell
+    # def _open_entry_exit(self) -> None:
+    #     for x, y in [self._entry_coord, self._exit_coord]:
+    #         if y == 0:
+    #             self._grid[y][x] &= ~1  # open North
+    #         elif y == self._height - 1:
+    #             self._grid[y][x] &= ~4  # open South
+    #         elif x == 0:
+    #             self._grid[y][x] &= ~8  # open West
+    #         elif x == self._width - 1:
+    #             self._grid[y][x] &= ~2  # open East
 
     # setting 42 symbol constrain
     def _forty_two_cells(self) -> set[tuple[int, int]]:

@@ -34,10 +34,10 @@ def write_output(grid, entry, exit, path, filename):
         f.write("".join(path) + "\n")
 
 
-maze = MazeGenerator(20, 20, (0, 0), (19, 19), True, seed=1)
+maze = MazeGenerator(20, 20, (0, 0), (19, 14), False, seed=1)
 grid = maze.get_grid()
 path = maze.solve()
-write_output(grid, (0, 0), (19, 19), path, "test_output.txt")
+write_output(grid, (0, 0), (19, 14), path, "test_output.txt")
 
 with open("test_output.txt") as f:
     content = f.read()
