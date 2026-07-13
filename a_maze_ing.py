@@ -101,9 +101,9 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
                 if (i % 2 == 0 or j % 2 == 0):
                     mazed[i].append([WALLS])
                 else:
-                    if (((j - 1) / 2, (i - 1) / 2) == entry):
+                    if (((j - 1) / 2, (i - 1) / 2) == pconfig["ENTRY"]):
                         mazed[i].append([ENTRY])
-                    elif (((j - 1) / 2, (i - 1) / 2) == exit):
+                    elif (((j - 1) / 2, (i - 1) / 2) == pconfig["EXIT"]):
                         mazed[i].append([EXIT])
                     else:
                         mazed[i].append([CELL])
@@ -135,7 +135,8 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
             mazed[(entry[1] * 2) + 1][(entry[0] * 2) + 1] = [PATH]
 
             # Repaint the exit after drawing path
-            mazed[(exit[1] * 2) + 1][(exit[0] * 2) + 1] = [EXIT]
+            mazed[(pconfig["EXIT"][1] * 2) + 1][
+                (pconfig["EXIT"][0] * 2) + 1] = [EXIT]
             draw(mazed, msg=PRINTING_PATH_ASCII)
             time.sleep(sleep)
             return entry
@@ -157,9 +158,10 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
                     cell[0] = replace[1]
             draw(mazed, msg)
             time.sleep(sleep)
-        mazed[(entry[1] * 2) + 1][(entry[0] * 2) + 1] = [ENTRY]
+        mazed[(pconfig["ENTRY"][1] * 2) + 1][
+            (pconfig["ENTRY"][0] * 2) + 1] = [ENTRY]
         # Repaint the exit after drawing path
-        mazed[(exit[1] * 2) + 1][(exit[0] * 2) + 1] = [EXIT]
+        mazed[(pconfig["EXIT"][1] * 2) + 1][(pconfig["EXIT"][0] * 2) + 1] = [EXIT]
 
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
         for line in range(0, len(lines)):
@@ -316,7 +318,10 @@ def main():
             pconfig["WIDTH"], pconfig["HEIGHT"],
             pconfig["ENTRY"], pconfig["EXIT"], True, seed=1)
     grid = maze.get_grid()
-    path = maze.solve()
+    try:
+        path = maze.solve()
+    except Exception as e:
+        print(e)
     write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
                  path, pconfig["OUTPUT_FILE"][0])
     with open(pconfig["OUTPUT_FILE"][0]) as file:
