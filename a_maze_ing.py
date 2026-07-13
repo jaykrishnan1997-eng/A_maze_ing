@@ -159,7 +159,6 @@ def print_maze(maze: str):
         # Repaint the exit after drawing path
         mazed[(exit[1] * 2) + 1][(exit[0] * 2) + 1] = [EXIT]
 
-
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
         for line in range(0, len(lines)):
             for cell in range(0, len(lines[0])):
