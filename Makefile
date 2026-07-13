@@ -14,11 +14,12 @@ debug:
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -name "*.pyc" -delete
 	rm -rf .mypy_cache
 	rm -rf .pytest_cache
-	rm -rf dist/*.whl
-	rm -rf dist/*.tar.gz
-	find . -name "*.pyc" -delete
+	rm -rf build
+	rm -rf *.egg-info
+	rm -rf dist
 
 # fclean: clean
 # 	rm -rf .venv
