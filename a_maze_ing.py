@@ -227,9 +227,9 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
             maze = MazeGenerator(
                     pconfig["WIDTH"], pconfig["HEIGHT"],
                     pconfig["ENTRY"], pconfig["EXIT"], True, seed=None)
-            grid = maze.get_grid()
-            path = maze.solve()
-            write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
+            grid = maze._get_grid()
+            path = maze._solve()
+            _write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
                          path, pconfig["OUTPUT_FILE"][0])
             with open(pconfig["OUTPUT_FILE"][0]) as file:
                 pmaze = parse_maze(file.read())
@@ -278,7 +278,7 @@ def config_parse(config: str):
     rconfig['OUTPUT_FILE'] = [
         x for x in
         [line.split("=")[1] for line in lines if
-         line.split("=")[0] == mandatory[4]]]
+         line.split("=")[0] == mandatory[4]]][0]
     rconfig['PERFECT'] = [
         x.capitalize() for x in
         [line.split("=")[1] for line in lines
@@ -289,7 +289,7 @@ def config_parse(config: str):
     return (rconfig)
 
 
-def write_output(grid, entry, exit, path, filename):
+def _write_output(grid, entry, exit, path, filename):
     with open(filename, "w") as f:
         for row in grid:
             f.write("".join(format(cell, "X") for cell in row) + "\n")
@@ -317,12 +317,12 @@ def main():
     maze = MazeGenerator(
             pconfig["WIDTH"], pconfig["HEIGHT"],
             pconfig["ENTRY"], pconfig["EXIT"], True, seed=1)
-    grid = maze.get_grid()
+    grid = maze._get_grid()
     try:
-        path = maze.solve()
+        path = maze._solve()
     except Exception as e:
         print(e)
-    write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
+    _write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
                  path, pconfig["OUTPUT_FILE"][0])
     with open(pconfig["OUTPUT_FILE"][0]) as file:
         print_maze(file.read(), pconfig)

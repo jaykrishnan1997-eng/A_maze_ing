@@ -7,7 +7,7 @@ This document is the contract between the two of us. Sign off on it before writi
 | | You — Algorithm side | Partner — Parsing/IO side |
 |---|---|---|
 | Core work | `MazeGenerator` class: recursive backtracker, wall coherence, corridor-width check (no 3×3 open areas), 42-pattern injection, seed handling | Config file parsing + validation (mandatory keys, error handling, bad syntax) |
-| Also owns | BFS solver — shortest path + direction-string encoding (stays algorithmic, not bolted onto parsing) | Output file writer (hex grid + entry/exit/path formatting) |
+| Also owns | BFS _solver — shortest path + direction-string encoding (stays algorithmic, not bolted onto parsing) | Output file writer (hex grid + entry/exit/path formatting) |
 | Also owns | Packaging (`mazegen-*.whl`) | ASCII display + interactive menu (regenerate / show path / colors) |
 
 **Analogy:** same split as push_swap — your partner's parsing didn't need to know how the sort worked, just what valid input looked like and how to hand it off. Same here: your partner doesn't need backtracker internals, just the shape of data coming out of `MazeGenerator`.
@@ -23,7 +23,7 @@ Two integration seams instead of one — exactly where things break silently. Th
 
 ## De-risking Integration
 
-1. **Freeze data shapes first.** Write down the exact `Config` fields/types and exactly what `get_grid()` returns, before either of you codes. Both sign off.
+1. **Freeze data shapes first.** Write down the exact `Config` fields/types and exactly what `_get_grid()` returns, before either of you codes. Both sign off.
 2. **Agree on `MazeGenerator.__init__` now**, even unimplemented — the config parser needs the exact signature to call into.
 3. **Partner builds against a stub first.** A fake `MazeGenerator` that returns a hardcoded small grid, so parsing/writing/display can be built and tested without waiting on the real algorithm. This is the actual fix for backloaded integration — decoupling via a stub, not just a written contract.
 4. **Integrate early, on a tiny maze.** Plug the real generator into the real writer by day 2–3 with a 5×5 maze — not day 5 with the full thing. Small checks catch shape mismatches while they're cheap to fix.
@@ -53,9 +53,9 @@ output_file: str
 - Hex values `0–15`
 - Bit → direction mapping (subject fixes this): `bit0=N, bit1=E, bit2=S, bit3=W` — confirm both reading it the same way
 
-### 4. Solver output format
+### 4. _solver output format
 
-- `solve()` returns coordinates, **or** the direction string directly? Decide now so the writer doesn't have to guess or convert.
+- `_solve()` returns coordinates, **or** the direction string directly? Decide now so the writer doesn't have to guess or convert.
 
 ### 5. Error handling ownership
 
@@ -93,7 +93,7 @@ a-maze-ing/
 │
 ├── mazegen/                 # YOUR package — reusable, pip-installable
 │   ├── __init__.py          # exposes `from mazegen import MazeGenerator`
-│   └── maze_generator.py    # MazeGenerator class: backtracker, 42-pattern, BFS solve
+│   └── maze_generator.py    # MazeGenerator class: backtracker, 42-pattern, BFS _solve
 │
 ├── parsing/                 # PARTNER's side
 │   ├── config_parser.py     # reads config.txt -> validated Config object

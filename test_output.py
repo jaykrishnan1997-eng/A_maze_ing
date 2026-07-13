@@ -2,7 +2,7 @@
 # from mazegen import MazeGenerator
 
 
-# def write_output(grid, entry, exit, path, filename):
+# def _write_output(grid, entry, exit, path, filename):
 #     with open(filename, "w") as f:
 #         for row in grid:
 #             f.write("".join(format(cell, "X") for cell in row) + "\n")
@@ -13,9 +13,9 @@
 
 
 # maze = MazeGenerator(5, 5, (0, 0), (4, 4), True, seed=1)
-# grid = maze.get_grid()
-# path = maze.solve()
-# write_output(grid, (0, 0), (4, 4), path, "test_output.txt")
+# grid = maze._get_grid()
+# path = maze._solve()
+# _write_output(grid, (0, 0), (4, 4), path, "test_output.txt")
 
 # with open("test_output.txt") as f:
 #     content = f.read()
@@ -24,7 +24,7 @@
 from mazegen import MazeGenerator
 
 
-def write_output(grid, entry, exit, path, filename):
+def _write_output(grid, entry, exit, path, filename):
     with open(filename, "w") as f:
         for row in grid:
             f.write("".join(format(cell, "X") for cell in row) + "\n")
@@ -35,9 +35,9 @@ def write_output(grid, entry, exit, path, filename):
 
 
 maze = MazeGenerator(20, 20, (0, 0), (19, 14), False, seed=1)
-grid = maze.get_grid()
-path = maze.solve()
-write_output(grid, (0, 0), (19, 14), path, "test_output.txt")
+grid = maze._get_grid()
+path = maze._solve()
+_write_output(grid, (0, 0), (19, 14), path, "test_output.txt")
 
 with open("test_output.txt") as f:
     content = f.read()

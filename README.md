@@ -8,7 +8,7 @@ A-Maze-ing is a Python maze generator that reads a configuration file, generates
 
 The project is split into two reusable pieces:
 
-- **`mazegen`** — a standalone, pip-installable package containing the `MazeGenerator` class: maze generation (Kruskal's algorithm), wall-coherence enforcement, the "42" pattern, a corridor-width constraint, and a BFS solver.
+- **`mazegen`** — a standalone, pip-installable package containing the `MazeGenerator` class: maze generation (Kruskal's algorithm), wall-coherence enforcement, the "42" pattern, a corridor-width constraint, and a BFS _solver.
 - **`a_maze_ing.py`** — the main entrypoint, tying together config parsing, maze generation, output writing, and terminal display.
 
 ## Instructions
@@ -113,7 +113,7 @@ A default `config.txt` is included at the root of the repository.
 - **Corridor-width constraint**: proven structurally impossible to violate under `PERFECT=True` — a fully-open 3×3 block would require 12 internal open walls, but a spanning tree over 9 cells can have at most 8 edges (no cycles), so Kruskal's cannot produce one. Verified programmatically against generated mazes.
 - **Entry/exit doorways**: after generation, the outward-facing wall of the entry and exit cells is opened (with a fixed preference for North/South over East/West at corners).
 - **`PERFECT=False`**: one rejected wall is randomly selected (with the same seed, for reproducibility) and opened, introducing exactly one loop.
-- **Solver**: a breadth-first search (BFS) over the generated grid returns the shortest entry→exit path as a string of `N`/`E`/`S`/`W` characters.
+- **_solver**: a breadth-first search (BFS) over the generated grid returns the shortest entry→exit path as a string of `N`/`E`/`S`/`W` characters.
 
 ## Reusable module
 
@@ -139,8 +139,8 @@ maze = MazeGenerator(
     seed=42,
 )
 
-grid = maze.get_grid()      # list[list[int]], one 4-bit wall value per cell
-path = maze.solve()         # list[str], shortest path as N/E/S/W moves
+grid = maze._get_grid()      # list[list[int]], one 4-bit wall value per cell
+path = maze._solve()         # list[str], shortest path as N/E/S/W moves
 ```
 
 ### Custom parameters
@@ -152,14 +152,14 @@ path = maze.solve()         # list[str], shortest path as N/E/S/W moves
 
 ### Accessing the structure and a solution
 
-- `get_grid()` returns a **copy** of the internal grid (`list[list[int]]`, row-major, one 4-bit wall value per cell) — safe to modify without affecting the generator.
-- `solve()` returns the shortest path from entry to exit as a list of single-character direction strings (`"N"`, `"E"`, `"S"`, `"W"`).
+- `_get_grid()` returns a **copy** of the internal grid (`list[list[int]]`, row-major, one 4-bit wall value per cell) — safe to modify without affecting the generator.
+- `_solve()` returns the shortest path from entry to exit as a list of single-character direction strings (`"N"`, `"E"`, `"S"`, `"W"`).
 
 ## Team and project management
 
 | | jkrishna | icorrale |
 |---|---|---|
-| Role | `MazeGenerator` core: Kruskal's algorithm, Union-Find, wall coherence, "42" pattern, corridor-width validation, BFS solver, packaging | Config file parsing, output file writing, ASCII terminal display and interactive menu |
+| Role | `MazeGenerator` core: Kruskal's algorithm, Union-Find, wall coherence, "42" pattern, corridor-width validation, BFS _solver, packaging | Config file parsing, output file writing, ASCII terminal display and interactive menu |
 
 ### Planning
 

@@ -21,8 +21,9 @@ clean:
 	rm -rf *.egg-info
 	rm -rf dist
 
-# fclean: clean
-# 	rm -rf .venv
+# used if u want to remove venv
+fclean: clean
+	rm -rf .venv
 
 lint:
 	flake8 . --exclude=.venv
