@@ -110,6 +110,10 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
         return mazed
 
     def draw(mazed: list[list[list[str]]], msg: str = "") -> None:
+        mazed[(pconfig["ENTRY"][1] * 2) + 1][
+            (pconfig["ENTRY"][0] * 2) + 1] = [ENTRY]
+        mazed[(pconfig["EXIT"][1] * 2) + 1][
+            (pconfig["EXIT"][0] * 2) + 1] = [EXIT]
         # Actual printing
         print(CLEAR_SCREEN)
         for line in mazed:
@@ -124,24 +128,26 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
 
     def move(mazed: list[list[list[str]]], entry: list[int] | None, path: str,
              sleep: float = 0.01) -> list[int] | None:
+        if entry is not None:
+            _entry: list[int] = list(entry)
         if (len(path) == 0):
             return []
-        if (len(path) == 1 and entry is not None):
-            entry[1] = entry[1] - 1 if path == 'N' else entry[1]
-            entry[0] = entry[0] - 1 if path == 'W' else entry[0]
-            entry[1] = entry[1] + 1 if path == 'S' else entry[1]
-            entry[0] = entry[0] + 1 if path == 'E' else entry[0]
-
-            mazed[(entry[1] * 2) + 1][(entry[0] * 2) + 1] = [PATH]
+        if (len(path) == 1 and _entry is not None):
+            _entry[1] = _entry[1] - 1 if path == 'N' else _entry[1]
+            _entry[0] = _entry[0] - 1 if path == 'W' else _entry[0]
+            _entry[1] = _entry[1] + 1 if path == 'S' else _entry[1]
+            _entry[0] = _entry[0] + 1 if path == 'E' else _entry[0]
+            mazed[(_entry[1] * 2) + 1][(_entry[0] * 2) + 1] = [PATH]
 
             # Repaint the exit after drawing path
-            mazed[(pconfig["EXIT"][1] * 2) + 1][
-                (pconfig["EXIT"][0] * 2) + 1] = [EXIT]
+            # mazed[(pconfig["ENTRY"][1])]
+            # mazed[(pconfig["EXIT"][1] * 2) + 1][
+            #     (pconfig["EXIT"][0] * 2) + 1] = [EXIT]
             draw(mazed, msg=PRINTING_PATH_ASCII)
             time.sleep(sleep)
-            return entry
+            return _entry
         if (len(path) > 1):
-            move(mazed, move(mazed, entry, path[0]), path[1:])
+            move(mazed, move(mazed, _entry, path[0]), path[1:])
         return []
 
     def is_pathed(mazed: list[list[list[str]]]) -> bool:
@@ -151,7 +157,8 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
                     return True
         return False
 
-    def unpath(mazed: list[list[list[str]]], replace: tuple[str, str] = (PATH, CELL),
+    def unpath(mazed: list[list[list[str]]],
+               replace: tuple[str, str] = (PATH, CELL),
                sleep: float = 0.01, msg: str = HIDING_PATH_ASCII) -> None:
         for line in mazed:
             for cell in line:
@@ -167,7 +174,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
 
     def apply_walls(
         mazed: list[list[list[str]]], lines: list[str],
-        entry: list[int, int], exit: list[int, int]
+        entry: list[int], exit: list[int]
     ) -> None:
         for line in range(0, len(lines)):
             for cell in range(0, len(lines[0])):
@@ -252,6 +259,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
         # PRINT/HIDE PATH
         if command == '2' or command.capitalize() == "P":
             if not is_pathed(mazed):
+                # ent: list[int, int] = list(pmaze["ENTRY"])
                 move(mazed, pmaze["ENTRY"], pmaze["PATH"])
             elif is_pathed(mazed):
                 unpath(mazed, replace=(PATH, CELL))
