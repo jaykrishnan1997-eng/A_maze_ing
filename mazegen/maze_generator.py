@@ -62,7 +62,7 @@ class UnionFind:
         return True
 
 
-# Daedalun and Theseus
+# Daedalus and Theseus
 class MazeGenerator:
     def __init__(
         self, width: int, height: int, entry_coord: tuple[int, int],
@@ -174,15 +174,7 @@ class MazeGenerator:
                 # a's S wall open and b's N wall open
                 self._grid[ay][ax] &= ~4  # clear S bit on a
                 self._grid[by][bx] &= ~1  # clear N bit on b
-#            # this remaining elif is optional a is always < b in the pair
-#            elif by - ay == 1:
-#                # a's W wall open and b's E wall open
-#                self._grid[ay][ax] &= ~8  # clear W bit on a
-#                self._grid[by][bx] &= ~2  # clear E bit on b
-#            elif by - ay == -1:
-#                # a's N wall open and b's S wall open
-#                self._grid[ay][ax] &= ~1  # clear N bit on a
-#                self._grid[by][bx] &= ~4  # clear S bit on b
+
 
     # setting 42 symbol constrain
     def _forty_two_cells(self) -> set[tuple[int, int]]:

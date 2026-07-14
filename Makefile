@@ -20,6 +20,7 @@ clean:
 	rm -rf build
 	rm -rf *.egg-info
 	rm -rf dist
+	rm -rf maze.txt
 
 # used if u want to remove venv
 fclean: clean
@@ -38,3 +39,11 @@ lint:
 lint-strict:
 	flake8 . --exclude=.venv
 	mypy . --strict
+
+# python3 -m venv .venv
+# source .venv/bin/activate
+# make
+# make run
+# make clean
+# deactivate
+# make fclean
