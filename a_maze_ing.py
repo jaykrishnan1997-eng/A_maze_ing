@@ -357,11 +357,11 @@ def main() -> None:
     _write_output(grid, tuple(pconfig["ENTRY"]), tuple(pconfig["EXIT"]),
                   path, pconfig["OUTPUT_FILE"])
     with open(pconfig["OUTPUT_FILE"]) as file:
-        print_maze(file.read(), pconfig)
-        # try:
-        # except Exception:
-        #     print("\x1b[33mERROR[config.txt]: ENTRY and EXIT "
-        #           "points can't be the same\x1b[0m")
+        try:
+            print_maze(file.read(), pconfig)
+        except Exception:
+            print("\x1b[33mERROR[config.txt]: ENTRY and EXIT "
+                  "points can't be the same\x1b[0m")
 
 
 if __name__ == "__main__":
