@@ -122,11 +122,11 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
             "\n" + msg + "\n\n" + WALLS * len(mazed[0])
             ) if msg != "" else None
 
-    def move(mazed: list[list[list[str]]], entry: list[int], path: str,
+    def move(mazed: list[list[list[str]]], entry: list[int] | None, path: str,
              sleep: float = 0.01) -> list[int] | None:
         if (len(path) == 0):
             return []
-        if (len(path) == 1):
+        if (len(path) == 1 and entry is not None):
             entry[1] = entry[1] - 1 if path == 'N' else entry[1]
             entry[0] = entry[0] - 1 if path == 'W' else entry[0]
             entry[1] = entry[1] + 1 if path == 'S' else entry[1]
@@ -144,14 +144,14 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
             move(mazed, move(mazed, entry, path[0]), path[1:])
         return []
 
-    def is_pathed(mazed: list[list[str]]) -> bool:
+    def is_pathed(mazed: list[list[list[str]]]) -> bool:
         for line in mazed:
             for cell in line:
                 if cell[0] == PATH:
                     return True
         return False
 
-    def unpath(mazed: list[list[str]], replace: tuple[str, str] = (PATH, CELL),
+    def unpath(mazed: list[list[list[str]]], replace: tuple[str, str] = (PATH, CELL),
                sleep: float = 0.01, msg: str = HIDING_PATH_ASCII) -> None:
         for line in mazed:
             for cell in line:
@@ -220,7 +220,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
     # Making an array of arrays that stores a blank maze of desired
     # dimensions
     pmaze = parse_maze(maze)
-    mazed: list[list[str]] = blank_maze(pmaze['HEIGHT'], pmaze['WIDTH'])
+    mazed: list[list[list[str]]] = blank_maze(pmaze['HEIGHT'], pmaze['WIDTH'])
     # Applying walls from output file to the blank maze
     apply_walls(mazed, pmaze['LINES'], pmaze['ENTRY'], pmaze['EXIT'])
     command = ""
