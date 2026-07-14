@@ -151,7 +151,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
                     return True
         return False
 
-    def unpath(mazed: list[list[str]], replace: tuple = (PATH, CELL),
+    def unpath(mazed: list[list[str]], replace: tuple[str, str] = (PATH, CELL),
                sleep: float = 0.01, msg: str = HIDING_PATH_ASCII) -> None:
         for line in mazed:
             for cell in line:
@@ -166,7 +166,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
             (pconfig["EXIT"][0] * 2) + 1] = [EXIT]
 
     def apply_walls(
-        mazed: list[list[str]], lines: list[str],
+        mazed: list[list[list[str]]], lines: list[str],
         entry: tuple[int, int], exit: tuple[int, int]
     ) -> None:
         for line in range(0, len(lines)):
@@ -209,8 +209,8 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
         splat: list[str] = maze.split("\n\n")
         hex: str = splat[0]
         lines_after = splat[1].split("\n")
-        entry: tuple[int] = tuple([int(x) for x in lines_after[0].split(",")])
-        exit: tuple[int] = tuple([int(x) for x in lines_after[1].split(",")])
+        entry: tuple[int, ...] = tuple([int(x) for x in lines_after[0].split(",")])
+        exit: tuple[int, ...] = tuple([int(x) for x in lines_after[1].split(",")])
         path: str = lines_after[2]
         lines: list[str] = hex.split('\n')
         width: int = len(lines[0])
@@ -235,14 +235,14 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
         command = input()
         perfect_value = pconfig["PERFECT"] == "True"
         if command == '1' or command.capitalize() == 'N':
-            maze = MazeGenerator(
+            m: MazeGenerator = MazeGenerator(
                     pconfig["WIDTH"], pconfig["HEIGHT"],
-                    pconfig["ENTRY"], pconfig["EXIT"],
+                    tuple(pconfig["ENTRY"]), tuple(pconfig["EXIT"]),
                     perfect_value,
                     pconfig["SEED"] if pconfig["SEED"] != "0" else None
             )
-            grid = maze._get_grid()
-            path = maze._solve()
+            grid = m._get_grid()
+            path = m._solve()
             _write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
                           path, pconfig["OUTPUT_FILE"])
             with open(pconfig["OUTPUT_FILE"]) as file:
@@ -252,7 +252,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
         # PRINT/HIDE PATH
         if command == '2' or command.capitalize() == "P":
             if not is_pathed(mazed):
-                move(mazed, list(pmaze["ENTRY"]), pmaze["PATH"])
+                move(mazed, pmaze["ENTRY"], pmaze["PATH"])
             elif is_pathed(mazed):
                 unpath(mazed, replace=(PATH, CELL))
         if command == '3':
@@ -289,7 +289,7 @@ def config_parse(
         [line.split("=")[1] for line in lines
          if line.split("=")[0] in mandatory[:2]]]
     rconfig['ENTRY'], rconfig['EXIT'] = [
-        (int(x), int(y)) for x, y in
+        [int(x), int(y)] for x, y in
         [line.split("=")[1].split(",")
          for line in lines if line.split("=")[0] in mandatory[2:4]]]
     rconfig['OUTPUT_FILE'] = [
@@ -300,8 +300,8 @@ def config_parse(
         line.split("=")[1] for line in lines
         if line.split("=")[0] == mandatory[5]
     ][0].capitalize()
-    rconfig["SEED"] = [
-        x.split("=")[1] for x in lines if x.split("=")[0] == "SEED"][0]
+    rconfig["SEED"] = str([
+        x.split("=")[1] for x in lines if x.split("=")[0] == "SEED"][0])
     return (rconfig)
 
 
@@ -337,16 +337,16 @@ def main() -> None:
         exit(1)
     try:
         perfect_value = pconfig["PERFECT"] == "True"
-        maze = MazeGenerator(
+        maze: MazeGenerator = MazeGenerator(
                 pconfig["WIDTH"], pconfig["HEIGHT"],
-                pconfig["ENTRY"], pconfig["EXIT"], perfect_value,
+                tuple(pconfig["ENTRY"]), tuple(pconfig["EXIT"]), perfect_value,
                 pconfig["SEED"] if pconfig["SEED"] != '0' else None)
         grid = maze._get_grid()
         path = maze._solve()
     except Exception as e:
         print(f"\x1b[33mERROR[config.txt]: {e}\x1b[0m")
         exit()
-    _write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
+    _write_output(grid, tuple(pconfig["ENTRY"]), tuple(pconfig["EXIT"]),
                   path, pconfig["OUTPUT_FILE"])
     with open(pconfig["OUTPUT_FILE"]) as file:
         try:
