@@ -313,19 +313,24 @@ def main():
     except Exception as e:
         print(e)
         exit(1)
-
-    maze = MazeGenerator(
-            pconfig["WIDTH"], pconfig["HEIGHT"],
-            pconfig["ENTRY"], pconfig["EXIT"], True, seed=1)
-    grid = maze._get_grid()
     try:
+        maze = MazeGenerator(
+                pconfig["WIDTH"], pconfig["HEIGHT"],
+                pconfig["ENTRY"], pconfig["EXIT"], pconfig["PERFECT"][0],
+                seed=1)
+        grid = maze._get_grid()
         path = maze._solve()
     except Exception as e:
-        print(e)
+        print(f"\x1b[33mERROR[config.txt]: {e}\x1b[0m")
+        exit()
     _write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
-                 path, pconfig["OUTPUT_FILE"][0])
+                  path, pconfig["OUTPUT_FILE"][0])
     with open(pconfig["OUTPUT_FILE"][0]) as file:
-        print_maze(file.read(), pconfig)
+        try:
+            print_maze(file.read(), pconfig)
+        except Exception:
+            print("\x1b[33mERROR[config.txt]: ENTRY and EXIT "
+                  "points can't be the same\x1b[0m")
 
 
 if __name__ == "__main__":
