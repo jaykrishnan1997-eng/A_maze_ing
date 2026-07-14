@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/14 14:48:46 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/14 15:39:42 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -147,6 +147,7 @@ class MazeGenerator:
     def _run_kruskal(
         self
     ) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
+        # initiate the maze
         uf = UnionFind(self._width * self._height)
         walls = self._build_walls(self._excluded)
         rng = random.Random(self._seed)

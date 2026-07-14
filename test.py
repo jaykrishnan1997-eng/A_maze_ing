@@ -14,10 +14,10 @@
 # print(f"Expected for perfect (tree): {reachable_cells - 1}")
 # print(f"Has a loop: {connections > reachable_cells - 1}")
 
-from mazegen import MazeGenerator
-from mazegen.maze_generator import count_open_connections
+# from mazegen import MazeGenerator
+# from mazegen.maze_generator import count_open_connections
 
-maze = MazeGenerator(15, 15, (4, 1), (13, 5), False, seed=42)
-grid = maze._get_grid()
-path_cells = maze._path_cell_ids()
-print(f"Path cells: {len(path_cells)}")
+# maze = MazeGenerator(15, 15, (4, 1), (13, 5), False, seed=42)
+# grid = maze._get_grid()
+# path_cells = maze._path_cell_ids()
+# print(f"Path cells: {len(path_cells)}")

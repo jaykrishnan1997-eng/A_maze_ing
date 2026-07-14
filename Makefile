@@ -24,6 +24,7 @@ clean:
 # used if u want to remove venv
 fclean: clean
 	rm -rf .venv
+	rm -rf venv
 
 lint:
 	flake8 . --exclude=.venv
