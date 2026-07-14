@@ -234,8 +234,8 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
             grid = maze._get_grid()
             path = maze._solve()
             _write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
-                          path, pconfig["OUTPUT_FILE"][0])
-            with open(pconfig["OUTPUT_FILE"][0]) as file:
+                          path, pconfig["OUTPUT_FILE"])
+            with open(pconfig["OUTPUT_FILE"]) as file:
                 pmaze = parse_maze(file.read())
                 mazed = blank_maze(pmaze['HEIGHT'], pmaze['WIDTH'])
             apply_walls(mazed, pmaze['LINES'], pmaze['ENTRY'], pmaze['EXIT'])
@@ -319,9 +319,10 @@ def main():
         print(e)
         exit(1)
     try:
+        perfect_value = pconfig["PERFECT"][0] == "True"
         maze = MazeGenerator(
                 pconfig["WIDTH"], pconfig["HEIGHT"],
-                pconfig["ENTRY"], pconfig["EXIT"], pconfig["PERFECT"][0],
+                pconfig["ENTRY"], pconfig["EXIT"], perfect_value,
                 seed=1)
         grid = maze._get_grid()
         path = maze._solve()
@@ -329,8 +330,8 @@ def main():
         print(f"\x1b[33mERROR[config.txt]: {e}\x1b[0m")
         exit()
     _write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
-                  path, pconfig["OUTPUT_FILE"][0])
-    with open(pconfig["OUTPUT_FILE"][0]) as file:
+                  path, pconfig["OUTPUT_FILE"])
+    with open(pconfig["OUTPUT_FILE"]) as file:
         try:
             print_maze(file.read(), pconfig)
         except Exception:

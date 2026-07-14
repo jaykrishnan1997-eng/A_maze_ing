@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/13 16:18:44 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/14 11:00:55 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -251,7 +251,24 @@ class MazeGenerator:
         rng = random.Random(self._seed)
         return [rng.choice(rejected_walls)]
 
+    # part of 3x3 check for forbidden coridors
+    def _has_open_3x3(self, x0: int, y0: int) -> bool:
+        # Check horizontal connections
+        for dy in range(3):
+            for dx in range(2):
+                # East wall exist
+                if self._grid[y0 + dy][x0 + dx] & 2:
+                    return False
+        # Check vertical connections
+        for dx in range(3):
+            for dy in range(2):
+                # South wall exist
+                if self._grid[y0 + dy][x0 + dx] & 4:
+                    return False
+        return True
 
+
+# the part that forwards the output to parser in Hex form
 def _write_output(
     grid: list[list[int]], entry: tuple[int, int], exit: tuple[int, int],
     path: list[str], filename: str
@@ -269,22 +286,6 @@ def _write_output(
 
 # 1. check for 3x3 open block to run through every possible cases
 # 3x3 or more ccoridor validator
-def _has_open_3x3(self, x0: int, y0: int) -> bool:
-    # Check horizontal connections
-    for dy in range(3):
-        for dx in range(2):
-            # East wall exist
-            if self._grid[y0 + dy][x0 + dx] & 2:
-                return False
-    # Check vertical connections
-    for dx in range(3):
-        for dy in range(2):
-            # South wall exist
-            if self._grid[y0 + dy][x0 + dx] & 4:
-                return False
-    return True
-
-
 def find_open_3x3_blocks(maze: MazeGenerator) -> list[tuple[int, int]]:
     violations = []
     for x0 in range(maze._width - 2):
