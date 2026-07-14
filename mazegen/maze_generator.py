@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/14 12:03:19 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/14 14:19:28 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -103,7 +103,7 @@ class MazeGenerator:
         return [row[:] for row in self._grid]
 
     #  to validate if coordinate within the range
-    def _validate_coord(self, coord):
+    def _validate_coord(self, coord: tuple[int, int]) -> None:
         x, y = coord
 
         if not (

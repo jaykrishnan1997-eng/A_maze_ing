@@ -1,17 +1,17 @@
 import sys
 import time
-import typing
 from mazegen import MazeGenerator
+from typing import Any
 
 
-def htod(h: str):
+def htod(h: str) -> int:
     if (type(h) is str and h.capitalize() in ['A', 'B', 'C', 'D', 'E', 'F']):
         return (10 + ['A', 'B', 'C', 'D', 'E', 'F'].index(h.capitalize()))
     return (int(h))
 
 
 # its actually compute_open, i'll fix the names later
-def compute_closed(cell: int) -> tuple:
+def compute_closed(cell: int) -> tuple[int, int, int, int]:
     fields: list[int] = [0, 8, 4, 2, 1]
     if (cell in fields):
         return (cell, cell, cell, cell)
@@ -27,7 +27,7 @@ def compute_closed(cell: int) -> tuple:
                         lambda x: x <= cell - f - s - t, fields))))[0],)
 
 
-def print_maze(maze: str, pconfig: dict[str, typing.Any]):
+def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
     CLEAR_SCREEN_ONE = "\x1b[H"
     CLEAR_SCREEN_TWO = '\x1b[2J\x1b[H'
     CLEAR_SCREEN = CLEAR_SCREEN_TWO
@@ -93,7 +93,7 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
      ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝
     """
 
-    def blank_maze(height: int, width: int):
+    def blank_maze(height: int, width: int) -> list[list[str]]:
         mazed: list[list[str]] = []
         for i in range((2 * height) + 1):
             mazed.append([])
@@ -109,7 +109,7 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
                         mazed[i].append([CELL])
         return mazed
 
-    def draw(mazed: list[list[str]], msg: str = ""):
+    def draw(mazed: list[list[str]], msg: str = "") -> None:
         # Actual printing
         print(CLEAR_SCREEN)
         for line in mazed:
@@ -123,7 +123,7 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
             ) if msg != "" else None
 
     def move(mazed: list[list[str]], entry: list[int], path: str,
-             sleep: float = 0.01):
+             sleep: float = 0.01) -> list[int] | None:
         if (len(path) == 0):
             return
         if (len(path) == 1):
@@ -143,7 +143,7 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
         if (len(path) > 1):
             move(mazed, move(mazed, entry, path[0]), path[1:])
 
-    def is_pathed(mazed: list[list[str]]):
+    def is_pathed(mazed: list[list[str]]) -> bool:
         for line in mazed:
             for cell in line:
                 if cell[0] == PATH:
@@ -151,7 +151,7 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
         return False
 
     def unpath(mazed: list[list[str]], replace: tuple = (PATH, CELL),
-               sleep: float = 0.01, msg: str = HIDING_PATH_ASCII):
+               sleep: float = 0.01, msg: str = HIDING_PATH_ASCII) -> None:
         for line in mazed:
             for cell in line:
                 if cell[0] == replace[0]:
@@ -164,7 +164,10 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
         mazed[(pconfig["EXIT"][1] * 2) + 1][
             (pconfig["EXIT"][0] * 2) + 1] = [EXIT]
 
-    def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
+    def apply_walls(
+        mazed: list[list[str]], lines: list[str],
+        entry: tuple[int, int], exit: tuple[int, int]
+    ) -> None:
         for line in range(0, len(lines)):
             for cell in range(0, len(lines[0])):
                 ft = False
@@ -198,7 +201,9 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
                     elif (o == 1):
                         mazed[mline - 1][mcell] = [WALLS]
 
-    def parse_maze(maze: str):
+    def parse_maze(
+        maze: str
+    ) -> dict[str, Any]:
         # preliminary parsing of output file
         splat: list[str] = maze.split("\n\n")
         hex: str = splat[0]
@@ -227,10 +232,14 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
         print("\x1b[38;5;117malgorithms:"
               " @jkrishna\ngraphics: @icorrale\x1b[0m")
         command = input()
+        perfect_value = pconfig["PERFECT"] == "True"
         if command == '1' or command.capitalize() == 'N':
             maze = MazeGenerator(
                     pconfig["WIDTH"], pconfig["HEIGHT"],
-                    pconfig["ENTRY"], pconfig["EXIT"], True, seed=None)
+                    pconfig["ENTRY"], pconfig["EXIT"],
+                    perfect_value,
+                    pconfig["SEED"] if pconfig["SEED"] != "0" else None
+            )
             grid = maze._get_grid()
             path = maze._solve()
             _write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
@@ -262,7 +271,9 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
                 CELL = CELL_ONE
 
 
-def config_parse(config: str):
+def config_parse(
+    config: str
+) -> dict[str, Any]:
     rconfig = {}
     lines: list[str] = config.split("\n")
     lines = [line for line in lines if not line.startswith("#")]
@@ -285,18 +296,21 @@ def config_parse(config: str):
         [line.split("=")[1] for line in lines if
          line.split("=")[0] == mandatory[4]]][0]
     rconfig['PERFECT'] = [
-        x.capitalize() for x in
-        [line.split("=")[1] for line in lines
-         if line.split("=")[0] == mandatory[5]]
-        if x.capitalize() == "true".capitalize() or
-        x.capitalize == "false".capitalize() or
-        x in (0, 1)]
+        line.split("=")[1] for line in lines
+        if line.split("=")[0] == mandatory[5]
+    ][0].capitalize()
     rconfig["SEED"] = [
         x.split("=")[1] for x in lines if x.split("=")[0] == "SEED"][0]
     return (rconfig)
 
 
-def _write_output(grid, entry, exit, path, filename):
+def _write_output(
+    grid: list[list[int]],
+    entry: tuple[int, int],
+    exit: tuple[int, int],
+    path: list[str],
+    filename: str,
+) -> None:
     with open(filename, "w") as f:
         for row in grid:
             f.write("".join(format(cell, "X") for cell in row) + "\n")
@@ -306,12 +320,12 @@ def _write_output(grid, entry, exit, path, filename):
         f.write("".join(path) + "\n")
 
 
-def main():
+def main() -> None:
     if (len(sys.argv) != 2):
         print("\x1b[41mUsage: python3 a-maze-ing.py config.txt")
         exit(1)
     config: str
-    pconfig: dict
+    pconfig: dict[str, Any]
     try:
         with open(sys.argv[1]) as file:
             config = file.read()
