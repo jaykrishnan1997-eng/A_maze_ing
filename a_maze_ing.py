@@ -275,7 +275,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
 def config_parse(
     config: str
 ) -> dict[str, Any]:
-    rconfig = {}
+    rconfig: dict[str, Any] = {}
     lines: list[str] = config.split("\n")
     lines = [line for line in lines if not line.startswith("#")]
     mandatory = ["WIDTH", "HEIGHT", "ENTRY", "EXIT",
