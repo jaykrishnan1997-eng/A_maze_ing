@@ -285,12 +285,9 @@ def config_parse(config: str):
         [line.split("=")[1] for line in lines if
          line.split("=")[0] == mandatory[4]]][0]
     rconfig['PERFECT'] = [
-        x.capitalize() for x in
-        [line.split("=")[1] for line in lines
-         if line.split("=")[0] == mandatory[5]]
-        if x.capitalize() == "true".capitalize() or
-        x.capitalize == "false".capitalize() or
-        x in (0, 1)]
+        line.split("=")[1] for line in lines
+        if line.split("=")[0] == mandatory[5]
+        ][0].capitalize()
     return (rconfig)
 
 
@@ -319,7 +316,7 @@ def main():
         print(e)
         exit(1)
     try:
-        perfect_value = pconfig["PERFECT"][0] == "True"
+        perfect_value = pconfig["PERFECT"] == "True"
         maze = MazeGenerator(
                 pconfig["WIDTH"], pconfig["HEIGHT"],
                 pconfig["ENTRY"], pconfig["EXIT"], perfect_value,

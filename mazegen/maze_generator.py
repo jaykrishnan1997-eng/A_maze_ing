@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/14 11:00:55 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/14 12:03:19 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -94,8 +94,9 @@ class MazeGenerator:
         self._seed = seed
         self._grid = [[15] * width for _ in range(height)]
         removed_walls, rejected_walls = self._run_kruskal()
-        loop_walls = self._add_loop(rejected_walls)
-        self._apply_walls(removed_walls + loop_walls)
+        self._apply_walls(removed_walls)  # apply walls
+        loop_walls = self._add_loop(rejected_walls)  # BFS see the real maze 
+        self._apply_walls(loop_walls)  # apply loop walls separately
 
     #  make a copy of the maze
     def _get_grid(self) -> list[list[int]]:
@@ -201,12 +202,11 @@ class MazeGenerator:
             return set()
 
     # BFS: Theseus
-    def _solve(self) -> list[str]:
+    def _bfs_came_from(
+        self
+    ) -> dict[tuple[int, int], tuple[tuple[int, int], str]]:
         start = self._entry_coord
         end = self._exit_coord
-        path: list[str] = []
-        if start == end:
-            return path
         queue = deque([start])
         visited = {start}
         came_from: dict[tuple[int, int], tuple[tuple[int, int], str]] = {}
@@ -231,8 +231,17 @@ class MazeGenerator:
                         queue.append(neighbor)
                         came_from[neighbor] = (current, dir)
 
-        if end not in came_from:
+        if end not in came_from and start != end:
             raise ValueError(f"No path found between {start} and {end}")
+        return came_from
+
+    def _solve(self) -> list[str]:
+        start = self._entry_coord
+        end = self._exit_coord
+        if start == end:
+            return []
+        came_from = self._bfs_came_from()
+        path: list[str] = []
         current = end
         while current != start:
             parent, direction = came_from[current]
@@ -242,14 +251,40 @@ class MazeGenerator:
         path.reverse()
         return path
 
+    def _path_cell_ids(self) -> set[int]:
+        start = self._entry_coord
+        end = self._exit_coord
+        if start == end:
+            return {self._cell_id(*start)}
+        came_from = self._bfs_came_from()
+        cells = {end}
+        current = end
+        while current != start:
+            parent, _ = came_from[current]
+            cells.add(parent)
+            current = parent
+        return {self._cell_id(x, y) for (x, y) in cells}
+
     # making a perfect maze imperfect. U monster!
     def _add_loop(
         self, rejected_walls: list[tuple[int, int]]
     ) -> list[tuple[int,  int]]:
         if self._perfect or not rejected_walls:
             return []
+
+        # get the entry-exit path cells as a set of cell IDs
+        path_cells = self._path_cell_ids()
+
+        candidates = [
+            (a, b) for a, b in rejected_walls
+            if a in path_cells and b in path_cells
+        ]
+
+        if not candidates:
+            return []  # no valid loop found in this path
+
         rng = random.Random(self._seed)
-        return [rng.choice(rejected_walls)]
+        return [rng.choice(candidates)]
 
     # part of 3x3 check for forbidden coridors
     def _has_open_3x3(self, x0: int, y0: int) -> bool:
