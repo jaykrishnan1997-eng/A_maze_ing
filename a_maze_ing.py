@@ -285,9 +285,14 @@ def config_parse(config: str):
         [line.split("=")[1] for line in lines if
          line.split("=")[0] == mandatory[4]]][0]
     rconfig['PERFECT'] = [
-        line.split("=")[1] for line in lines
-        if line.split("=")[0] == mandatory[5]
-        ][0].capitalize()
+        x.capitalize() for x in
+        [line.split("=")[1] for line in lines
+         if line.split("=")[0] == mandatory[5]]
+        if x.capitalize() == "true".capitalize() or
+        x.capitalize == "false".capitalize() or
+        x in (0, 1)]
+    rconfig["SEED"] = [
+        x.split("=")[1] for x in lines if x.split("=")[0] == "SEED"][0]
     return (rconfig)
 
 
@@ -320,7 +325,7 @@ def main():
         maze = MazeGenerator(
                 pconfig["WIDTH"], pconfig["HEIGHT"],
                 pconfig["ENTRY"], pconfig["EXIT"], perfect_value,
-                seed=1)
+                pconfig["SEED"] if pconfig["SEED"] != '0' else None)
         grid = maze._get_grid()
         path = maze._solve()
     except Exception as e:
