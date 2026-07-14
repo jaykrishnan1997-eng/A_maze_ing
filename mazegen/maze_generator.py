@@ -175,7 +175,6 @@ class MazeGenerator:
                 self._grid[ay][ax] &= ~4  # clear S bit on a
                 self._grid[by][bx] &= ~1  # clear N bit on b
 
-
     # setting 42 symbol constrain
     def _forty_two_cells(self) -> set[tuple[int, int]]:
         if self._height > 7 and self._width > 9:
