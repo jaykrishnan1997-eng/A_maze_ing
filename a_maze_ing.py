@@ -28,7 +28,7 @@ def compute_closed(cell: int) -> tuple[int, int, int, int]:
 
 
 def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
-    CLEAR_SCREEN_ONE = "\x1b[H"
+    # CLEAR_SCREEN_ONE = "\x1b[H"
     CLEAR_SCREEN_TWO = '\x1b[2J\x1b[H'
     CLEAR_SCREEN = CLEAR_SCREEN_TWO
     ENTRY = '\x1b[32m██\x1b[0m'
@@ -39,14 +39,14 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
     CELL_ONE = '██'
     CELL_TWO = '  '
     CELL = CELL_ONE
-    PATH_ONE = '\x1b[94m██\x1b[0m'
+    # PATH_ONE = '\x1b[94m██\x1b[0m'
     PATH_TWO = '\x1b[1;96m██\x1b[0m'
     PATH = PATH_TWO
-    FT_ONE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
-    FT_TWO = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
-    FT_THREE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
+    # FT_ONE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
+    # FT_TWO = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
+    # FT_THREE = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
     BLINK_FT = '\x1b[5m\x1b[94m██\x1b[25m\x1b[0m'
-    FTT = '\x1b[38;5;117m██\x1b[0m'
+    # FTT = '\x1b[38;5;117m██\x1b[0m'
     PRINTING_PATH_ASCII = r"""
     ██████╗ ██████╗ ██╗███╗   ██╗████████╗██╗███╗   ██╗ ██████╗
     ██╔══██╗██╔══██╗██║████╗  ██║╚══██╔══╝██║████╗  ██║██╔════╝
@@ -93,8 +93,8 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
      ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝
     """
 
-    def blank_maze(height: int, width: int) -> list[list[str]]:
-        mazed: list[list[str]] = []
+    def blank_maze(height: int, width: int) -> list[list[list[str]]]:
+        mazed: list[list[list[str]]] = []
         for i in range((2 * height) + 1):
             mazed.append([])
             for j in range((2 * width) + 1):
@@ -109,7 +109,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
                         mazed[i].append([CELL])
         return mazed
 
-    def draw(mazed: list[list[str]], msg: str = "") -> None:
+    def draw(mazed: list[list[list[str]]], msg: str = "") -> None:
         # Actual printing
         print(CLEAR_SCREEN)
         for line in mazed:
@@ -122,10 +122,10 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
             "\n" + msg + "\n\n" + WALLS * len(mazed[0])
             ) if msg != "" else None
 
-    def move(mazed: list[list[str]], entry: list[int], path: str,
+    def move(mazed: list[list[list[str]]], entry: list[int], path: str,
              sleep: float = 0.01) -> list[int] | None:
         if (len(path) == 0):
-            return
+            return []
         if (len(path) == 1):
             entry[1] = entry[1] - 1 if path == 'N' else entry[1]
             entry[0] = entry[0] - 1 if path == 'W' else entry[0]
@@ -142,6 +142,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
             return entry
         if (len(path) > 1):
             move(mazed, move(mazed, entry, path[0]), path[1:])
+        return []
 
     def is_pathed(mazed: list[list[str]]) -> bool:
         for line in mazed:
@@ -280,9 +281,9 @@ def config_parse(
     mandatory = ["WIDTH", "HEIGHT", "ENTRY", "EXIT",
                  "OUTPUT_FILE", "PERFECT", "SEED"]
     if (not set(mandatory) <= {line.split("=")[0] for line in lines}):
-        raise Exception(
-            f"\x1b[43m\nMissing mandatory fields in '{sys.argv[1]}':\n"
-            f"{set(mandatory) - {line.split('=')[0] for line in lines}}\x1b[0m")
+        exc = f"\x1b[43m\nMissing mandatory fields in '{sys.argv[1]}':\n"
+        f"{set(mandatory) - {line.split('=')[0] for line in lines}}\x1b[0m"
+        raise Exception(exc)
     rconfig['WIDTH'], rconfig['HEIGHT'] = [
         int(v) for v in
         [line.split("=")[1] for line in lines
