@@ -3,24 +3,34 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Distribution / packaging (needed for your mazegen wheel build)
+# Distribution / packaging
 build/
 dist/
 *.egg-info/
+*.egg
 
-# Type checking / linting caches
+# Type checking / linting / testing
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
+.coverage
+htmlcov/
 
 # Virtual environments
 .venv/
 venv/
 env/
 
-# Editor/OS junk
+# Editor / IDE
 .vscode/
 .idea/
+
+# macOS / Linux
+.DS_Store
+
+# Generated maze outputs (optional)
+maze.txt
+to_do.txt
 
 # General junk
 trash/
