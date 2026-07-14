@@ -166,23 +166,23 @@ class MazeGenerator:
         for a, b in removed_walls:
             ax, ay = self._cell_coords(a)
             bx, by = self._cell_coords(b)
-            if b - a == 1:
+            if bx - ax == 1:
                 # a's E wall open and b's W wall open
                 self._grid[ay][ax] &= ~2  # clear E bit on a
                 self._grid[by][bx] &= ~8  # clear W bit on b
-            elif b - a == self._width:
+            elif by - ay == 1:
                 # a's S wall open and b's N wall open
                 self._grid[ay][ax] &= ~4  # clear S bit on a
                 self._grid[by][bx] &= ~1  # clear N bit on b
-            # this remaining elif is optional a is always < b in the pair
-            elif b - a == -1:
-                # a's W wall open and b's E wall open
-                self._grid[ay][ax] &= ~8  # clear W bit on a
-                self._grid[by][bx] &= ~2  # clear E bit on b
-            elif b - a == -self._width:
-                # a's N wall open and b's S wall open
-                self._grid[ay][ax] &= ~1  # clear N bit on a
-                self._grid[by][bx] &= ~4  # clear S bit on b
+#            # this remaining elif is optional a is always < b in the pair
+#            elif by - ay == 1:
+#                # a's W wall open and b's E wall open
+#                self._grid[ay][ax] &= ~8  # clear W bit on a
+#                self._grid[by][bx] &= ~2  # clear E bit on b
+#            elif by - ay == -1:
+#                # a's N wall open and b's S wall open
+#                self._grid[ay][ax] &= ~1  # clear N bit on a
+#                self._grid[by][bx] &= ~4  # clear S bit on b
 
     # setting 42 symbol constrain
     def _forty_two_cells(self) -> set[tuple[int, int]]:
