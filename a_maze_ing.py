@@ -161,7 +161,8 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
         mazed[(pconfig["ENTRY"][1] * 2) + 1][
             (pconfig["ENTRY"][0] * 2) + 1] = [ENTRY]
         # Repaint the exit after drawing path
-        mazed[(pconfig["EXIT"][1] * 2) + 1][(pconfig["EXIT"][0] * 2) + 1] = [EXIT]
+        mazed[(pconfig["EXIT"][1] * 2) + 1][
+            (pconfig["EXIT"][0] * 2) + 1] = [EXIT]
 
     def apply_walls(mazed: list[list[str]], lines: list[str], entry: tuple[int], exit: tuple[int]):
         for line in range(0, len(lines)):
@@ -188,7 +189,8 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
                     ft = True
                 for o in open:
                     if (o == 8):
-                        mazed[mline][mcell - 1] = [WALLS if not ft else BLINK_FT]
+                        mazed[mline][mcell - 1] = [
+                            WALLS if not ft else BLINK_FT]
                     elif (o == 4):
                         mazed[mline + 1][mcell] = [WALLS]
                     elif (o == 2):
@@ -218,10 +220,12 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
     command = ""
     while (command.capitalize() != "Q" and command != '5'):
         draw(mazed)
-        print("\n\t1:\tnew maze\t\t"
-              "\t2:\tprint path / hide path\n\t3:\tchange walls"
+        print("\n1:\tnew maze\t\t"
+              "2:\tprint path / hide path\n3:\tchange walls"
               "\t\t\t\n\n5/Q:\tquit\n")
         print(WALLS * len(mazed[0]))
+        print("\x1b[38;5;117malgorithms:"
+              " @jkrishna\ngraphics: @icorrale\x1b[0m")
         command = input()
         if command == '1' or command.capitalize() == 'N':
             maze = MazeGenerator(
@@ -230,7 +234,7 @@ def print_maze(maze: str, pconfig: dict[str, typing.Any]):
             grid = maze._get_grid()
             path = maze._solve()
             _write_output(grid, pconfig["ENTRY"], pconfig["EXIT"],
-                         path, pconfig["OUTPUT_FILE"][0])
+                          path, pconfig["OUTPUT_FILE"][0])
             with open(pconfig["OUTPUT_FILE"][0]) as file:
                 pmaze = parse_maze(file.read())
                 mazed = blank_maze(pmaze['HEIGHT'], pmaze['WIDTH'])
@@ -262,11 +266,12 @@ def config_parse(config: str):
     rconfig = {}
     lines: list[str] = config.split("\n")
     lines = [line for line in lines if not line.startswith("#")]
-    mandatory = ["WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"]
+    mandatory = ["WIDTH", "HEIGHT", "ENTRY", "EXIT",
+                 "OUTPUT_FILE", "PERFECT", "SEED"]
     if (not set(mandatory) <= {line.split("=")[0] for line in lines}):
         raise Exception(
-            f"Missing mandatory fields in '{sys.argv[1]}':\n"
-            f"{set(mandatory) - {line.split('=')[0] for line in lines}}")
+            f"\x1b[43m\nMissing mandatory fields in '{sys.argv[1]}':\n"
+            f"{set(mandatory) - {line.split('=')[0] for line in lines}}\x1b[0m")
     rconfig['WIDTH'], rconfig['HEIGHT'] = [
         int(v) for v in
         [line.split("=")[1] for line in lines
