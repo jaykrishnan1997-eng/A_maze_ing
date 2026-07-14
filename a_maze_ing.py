@@ -167,7 +167,7 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
 
     def apply_walls(
         mazed: list[list[list[str]]], lines: list[str],
-        entry: tuple[int, int], exit: tuple[int, int]
+        entry: list[int, int], exit: list[int, int]
     ) -> None:
         for line in range(0, len(lines)):
             for cell in range(0, len(lines[0])):
@@ -209,8 +209,8 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
         splat: list[str] = maze.split("\n\n")
         hex: str = splat[0]
         lines_after = splat[1].split("\n")
-        entry: tuple[int, ...] = tuple([int(x) for x in lines_after[0].split(",")])
-        exit: tuple[int, ...] = tuple([int(x) for x in lines_after[1].split(",")])
+        entry: list[int] = [int(x) for x in lines_after[0].split(",")]
+        exit: list[int] = [int(x) for x in lines_after[1].split(",")]
         path: str = lines_after[2]
         lines: list[str] = hex.split('\n')
         width: int = len(lines[0])
@@ -349,11 +349,11 @@ def main() -> None:
     _write_output(grid, tuple(pconfig["ENTRY"]), tuple(pconfig["EXIT"]),
                   path, pconfig["OUTPUT_FILE"])
     with open(pconfig["OUTPUT_FILE"]) as file:
-        try:
-            print_maze(file.read(), pconfig)
-        except Exception:
-            print("\x1b[33mERROR[config.txt]: ENTRY and EXIT "
-                  "points can't be the same\x1b[0m")
+        print_maze(file.read(), pconfig)
+        # try:
+        # except Exception:
+        #     print("\x1b[33mERROR[config.txt]: ENTRY and EXIT "
+        #           "points can't be the same\x1b[0m")
 
 
 if __name__ == "__main__":
