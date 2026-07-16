@@ -367,8 +367,9 @@ def config_parse(
          line.split("=")[0] == mandatory[4]]][0]
     rconfig['PERFECT'] = [
         line.split("=")[1] for line in lines
-        if line.split("=")[0] == mandatory[5]
-    ][0].capitalize()
+        if line.split("=")[0] == mandatory[5]][0].capitalize()
+    if rconfig['PERFECT'].capitalize() not in ['True', 'False']:
+        raise Exception("Field 'Perfect' accepts only True or False")
     rconfig["SEED"] = str([
         x.split("=")[1] for x in lines if x.split("=")[0] == "SEED"][0])
     return (rconfig)
@@ -413,7 +414,7 @@ def main() -> None:
             pconfig = config_parse(config)
             print(pconfig)  # fully parsed config for Jay
     except Exception as e:
-        print(e)
+        print(f"\x1b[33mERROR[config.txt]: {e}\x1b[0m")
         exit(1)
     try:
         perfect_value = pconfig["PERFECT"] == "True"
