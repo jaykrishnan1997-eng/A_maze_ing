@@ -15,3 +15,6 @@ authors = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["mazegen*"]
+
+[tool.mypy]
+exclude = ['^\.venv/', '^venv/']

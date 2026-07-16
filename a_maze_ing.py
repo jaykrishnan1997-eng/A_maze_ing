@@ -1,6 +1,7 @@
 import sys
 import time
 from mazegen import MazeGenerator
+# from mazegen.maze_generator import MazeGenerator
 from typing import Any
 
 

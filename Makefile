@@ -1,9 +1,11 @@
-.PHONY: install run debug clean lint lint-strict
+.PHONY: install run debug clean fclean lint lint-strict
 
 PYTHON = python3
 MAIN = a_maze_ing.py
 
 install:
+	$(PYTHON) -m pip install build
+	$(PYTHON) -m build
 	$(PYTHON) -m pip install .
 
 run:
@@ -14,21 +16,21 @@ debug:
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	find . -name "*.pyc" -delete
-	rm -rf .mypy_cache
 	rm -rf .pytest_cache
-	rm -rf build
-	rm -rf *.egg-info
-	rm -rf dist
 	rm -rf maze.txt
 
 # used if u want to remove venv
 fclean: clean
+	rm -rf build
+	rm -rf *.egg-info
+	rm -rf dist
 	rm -rf .venv
 	rm -rf venv
 
 lint:
-	flake8 . --exclude=.venv
+	flake8 . --exclude=.venv,venv
 	mypy . \
 		--warn-return-any \
 		--warn-unused-ignores \
@@ -37,12 +39,12 @@ lint:
 		--check-untyped-defs
 
 lint-strict:
-	flake8 . --exclude=.venv
+	flake8 . --exclude=.venv,venv
 	mypy . --strict
 
 # python3 -m venv .venv
 # source .venv/bin/activate
-# make
+# make install
 # make run
 # make clean
 # deactivate

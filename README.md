@@ -59,13 +59,33 @@ make lint          # flake8 + mypy with the required flags
 make lint-strict    # flake8 + mypy --strict
 ```
 
+Both `flake8` and `mypy` are configured to skip virtual environments (`.venv`/`venv`), regardless of which naming convention is in use:
+
+- `flake8` is passed `--exclude=.venv,venv` directly on the command line.
+- `mypy` reads its `exclude` setting from `pyproject.toml` (`[tool.mypy]`), since it does not accept exclusion patterns as CLI flags in the same way.
+
 ### Clean
 
 ```bash
 make clean
 ```
 
-Removes `__pycache__`, `.mypy_cache`, `.pytest_cache`, build artifacts, and `.egg-info` directories.
+Removes build/lint artifacts anywhere in the project tree:
+
+- `__pycache__` directories (found recursively, so this also covers subpackages like `mazegen`)
+- `.mypy_cache` directories (found recursively, for the same reason)
+- `*.pyc` files
+- `.pytest_cache`
+- the generated `maze.txt` output file
+
+```bash
+make fclean
+```
+
+Runs `make clean` and additionally removes packaging/build artifacts and any virtual environment:
+
+- `build/`, `dist/`, `*.egg-info`
+- `.venv/`, `venv/`
 
 ### Building the `mazegen` package from source
 
@@ -189,4 +209,4 @@ Work was split along the same lines as prior collaborative C projects: one perso
 
 ### AI usage
 
-Claude (Anthropic) was used throughout development of the `mazegen` package as a tutor rather than a code generator: explaining Union-Find and Kruskal's algorithm conceptually before any code was written, reviewing hand-written code line by line to catch bugs (rather than rewriting it), and helping design the "42"-pattern exclusion approach (excluding pattern cells from Kruskal's candidate wall list up front, rather than sealing them after generation and risking a disconnected maze). Claude was also used to help draft the `pyproject.toml` packaging configuration and to debug a cross-module output-format mismatch between the maze generator and the display code during integration testing. All resulting code was written and understood by the author, in line with the subject's AI usage guidance.
+Claude (Anthropic) was used throughout development of the `mazegen` package as a tutor rather than a code generator: explaining Union-Find and Kruskal's algorithm conceptually before any code was written, reviewing hand-written code line by line to catch bugs (rather than rewriting it), and helping design the "42"-pattern exclusion approach (excluding pattern cells from Kruskal's candidate wall list up front, rather than sealing them after generation and risking a disconnected maze). Claude was also used to help draft the `pyproject.toml` packaging configuration (including the `mypy` exclusion for virtual environments), debug a cross-module output-format mismatch between the maze generator and the display code during integration testing, and interpret a `valgrind` memcheck log to confirm the interpreter's "still reachable" startup allocations were not project-code leaks. All resulting code was written and understood by the author, in line with the subject's AI usage guidance.
