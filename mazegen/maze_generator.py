@@ -7,7 +7,7 @@
 #   By: jkrishna <jkrishna@student.42.fr>            +#+  +:+       +#+       #
 #                                                  +#+#+#+#+#+   +#+          #
 #   Created: 2026/07/07 09:19:10 by jkrishna            #+#    #+#            #
-#   Updated: 2026/07/16 11:43:00 by jkrishna           ###   ########.fr      #
+#   Updated: 2026/07/16 13:29:08 by jkrishna           ###   ########.fr      #
 #                                                                             #
 # ########################################################################### #
 
@@ -116,7 +116,7 @@ class MazeGenerator:
 
     def __init__(
         self, width: int, height: int, entry_coord: tuple[int, int],
-        exit_coord: tuple[int, int], perfect: bool, seed: int | None
+        exit_coord: tuple[int, int], perfect: bool, seed: int | None = None
     ) -> None:
         """Build and generate a new maze.
 
@@ -265,7 +265,8 @@ class MazeGenerator:
     def _run_kruskal(
         self
     ) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
-        """Run randomized Kruskal's algorithm to build the maze's spanning tree.
+        """Run randomized Kruskal's algorithm to build the maze's
+        spanning tree.
 
         Shuffles the candidate wall list (seeded by `self._seed` for
         reproducibility) and processes each wall in order, opening it
@@ -484,22 +485,6 @@ class MazeGenerator:
         rng = random.Random(self._seed)
         return [rng.choice(candidates)]
 
-    # # part of 3x3 check for forbidden coridors
-    # def _has_open_3x3(self, x0: int, y0: int) -> bool:
-    #     # Check horizontal connections
-    #     for dy in range(3):
-    #         for dx in range(2):
-    #             # East wall exist
-    #             if self._grid[y0 + dy][x0 + dx] & 2:
-    #                 return False
-    #     # Check vertical connections
-    #     for dx in range(3):
-    #         for dy in range(2):
-    #             # South wall exist
-    #             if self._grid[y0 + dy][x0 + dx] & 4:
-    #                 return False
-    #     return True
-
 
 # the part that forwards the output to parser in Hex form
 def _write_output(
@@ -528,62 +513,3 @@ def _write_output(
         f.write(f"{entry[0]},{entry[1]}\n")
         f.write(f"{exit[0]},{exit[1]}\n")
         f.write("".join(path) + "\n")
-
-
-# # #######################CHECKS####################################
-
-# # 1. check for 3x3 open block to run through every possible cases
-# # 3x3 or more ccoridor validator
-# def find_open_3x3_blocks(maze: MazeGenerator) -> list[tuple[int, int]]:
-#     violations = []
-#     for x0 in range(maze._width - 2):
-#         for y0 in range(maze._height - 2):
-#             if maze._has_open_3x3(x0, y0):
-#                 violations.append((x0, y0))
-#     return violations
-
-
-# #  2. method to verify if the created maze is consistent, ie the properties
-# #  of each cell agrees with the nearby cell
-# def verify_coherence(grid: list[list[int]]) -> list[str]:
-#     # Returns a list of error messages for any incoherent wall pairs found.
-#     errors = []
-#     width = len(grid[0])
-#     height = len(grid)
-#     for y in range(height):
-#         for x in range(width):
-#             #  checking east neighbor
-#             if x < width - 1:
-#                 east_cell = grid[y][x + 1]
-#                 current_cell = grid[y][x]
-#                 if bool(current_cell & 2) != bool(east_cell & 8):
-#                     errors.append(f"E wall of ({x},{y}) is broken")
-#             #  checking south neightbor
-#             if y < height - 1:
-#                 south_cell = grid[y + 1][x]
-#                 curr_cell = grid[y][x]
-#                 if bool(curr_cell & 4) != bool(south_cell & 1):
-#                     errors.append(f"S wall of ({x},{y}) is broken")
-#     return errors
-
-
-# # 3. Count if only unique path exist and not more than one for perfect = 1
-# def count_open_connections(grid) -> int:
-#     height = len(grid)
-#     width = len(grid[0])
-#     connections = 0
-
-#     for y in range(height):
-#         for x in range(width):
-#             cell = grid[y][x]
-
-#             # East opening
-#             if x < width - 1 and cell & 2 == 0:
-#                 connections += 1
-
-#             # South opening
-#             if y < height - 1 and cell & 4 == 0:
-#                 connections += 1
-#     return connections
-
-# # #########################FIN###########################

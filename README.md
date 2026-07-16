@@ -169,6 +169,7 @@ path = maze._solve()         # list[str], shortest path as N/E/S/W moves
 - `entry_coord`, `exit_coord` — `(x, y)` tuples
 - `perfect` — `True` for a spanning-tree maze (one path), `False` to add one extra loop
 - `seed` — any integer for reproducible generation, or `None` for non-deterministic generation
+> **NOTE:** Regenerating a maze is only available when `seed` is `None`. This is a design choice. 
 
 ### Accessing the structure and a solution
 

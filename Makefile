@@ -6,6 +6,8 @@ MAIN = a_maze_ing.py
 install:
 	$(PYTHON) -m pip install build
 	$(PYTHON) -m build
+	mv dist/* .
+	rmdir dist
 	$(PYTHON) -m pip install .
 
 run:
@@ -28,6 +30,8 @@ fclean: clean
 	rm -rf dist
 	rm -rf .venv
 	rm -rf venv
+	rm -rf *.tar.gz
+	rm -rf *.whl
 
 lint:
 	flake8 . --exclude=.venv,venv

@@ -6,6 +6,11 @@ from typing import Any
 
 
 def htod(h: str) -> int:
+    """Convert a hexadecimal character into its decimal integer value.
+
+    Supports the hexadecimal digits 0-9 and A-F (case-insensitive).
+    Returns the corresponding integer representation.
+    """
     if (type(h) is str and h.capitalize() in ['A', 'B', 'C', 'D', 'E', 'F']):
         return (10 + ['A', 'B', 'C', 'D', 'E', 'F'].index(h.capitalize()))
     return (int(h))
@@ -13,6 +18,12 @@ def htod(h: str) -> int:
 
 # its actually compute_open, i'll fix the names later
 def compute_closed(cell: int) -> tuple[int, int, int, int]:
+    """Determine the closed walls for a maze cell.
+
+    Decomposes the encoded cell value into the wall bitmasks that
+    represent the closed directions (north, east, south, and west).
+    Returns the resulting wall values as a tuple.
+    """
     fields: list[int] = [0, 8, 4, 2, 1]
     if (cell in fields):
         return (cell, cell, cell, cell)
@@ -29,6 +40,13 @@ def compute_closed(cell: int) -> tuple[int, int, int, int]:
 
 
 def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
+    """Display the generated maze in the terminal.
+
+    Parses the maze data, renders a graphical representation using ANSI
+    escape sequences, and provides an interactive interface for
+    generating new mazes, displaying the solution path, and changing the
+    visual style of the maze.
+    """
     # CLEAR_SCREEN_ONE = "\x1b[H"
     CLEAR_SCREEN_TWO = '\x1b[2J\x1b[H'
     CLEAR_SCREEN = CLEAR_SCREEN_TWO
@@ -95,6 +113,11 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
     """
 
     def blank_maze(height: int, width: int) -> list[list[list[str]]]:
+        """Create an empty maze grid.
+
+        Builds a maze of the requested dimensions containing walls, cells,
+        and the configured entry and exit points.
+        """
         mazed: list[list[list[str]]] = []
         for i in range((2 * height) + 1):
             mazed.append([])
@@ -111,6 +134,11 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
         return mazed
 
     def draw(mazed: list[list[list[str]]], msg: str = "") -> None:
+        """Render the current maze state.
+
+        Draws the maze to the terminal, restores the entry and exit markers,
+        and optionally displays a status message below the maze.
+        """
         mazed[(pconfig["ENTRY"][1] * 2) + 1][
             (pconfig["ENTRY"][0] * 2) + 1] = [ENTRY]
         mazed[(pconfig["EXIT"][1] * 2) + 1][
@@ -129,6 +157,11 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
 
     def move(mazed: list[list[list[str]]], entry: list[int] | None, path: str,
              sleep: float = 0.01) -> list[int] | None:
+        """Animate traversal of the solution path.
+
+        Follows the supplied path from the starting position, updating the
+        maze display after each movement to visualize the solution.
+        """
         if entry is not None:
             _entry: list[int] = list(entry)
         if (len(path) == 0):
@@ -152,6 +185,11 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
         return []
 
     def is_pathed(mazed: list[list[list[str]]]) -> bool:
+        """Check whether the solution path is currently visible.
+
+        Returns:
+        True if the maze contains visible path markers, otherwise False.
+        """
         for line in mazed:
             for cell in line:
                 if cell[0] == PATH:
@@ -161,6 +199,11 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
     def unpath(mazed: list[list[list[str]]],
                replace: tuple[str, str] = (PATH, CELL),
                sleep: float = 0.01, msg: str = HIDING_PATH_ASCII) -> None:
+        """Remove or replace the displayed solution path.
+
+        Replaces all path markers with the requested cell representation and
+        redraws the maze to update the display.
+        """
         for line in mazed:
             for cell in line:
                 if cell[0] == replace[0]:
@@ -177,6 +220,11 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
         mazed: list[list[list[str]]], lines: list[str],
         entry: list[int], exit: list[int]
     ) -> None:
+        """Apply wall information to the rendered maze.
+
+        Decodes each maze cell and updates the display grid with walls,
+        passages, and special markers based on the encoded cell values.
+        """
         for line in range(0, len(lines)):
             for cell in range(0, len(lines[0])):
                 ft = False
@@ -213,6 +261,12 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
     def parse_maze(
         maze: str
     ) -> dict[str, Any]:
+        """Parse a maze description.
+
+        Extracts the maze dimensions, wall data, entry and exit coordinates,
+        and solution path from the maze file contents and returns them in a
+        dictionary.
+        """
         # preliminary parsing of output file
         splat: list[str] = maze.split("\n\n")
         hex: str = splat[0]
@@ -284,6 +338,12 @@ def print_maze(maze: str, pconfig: dict[str, Any]) -> None:
 def config_parse(
     config: str
 ) -> dict[str, Any]:
+    """Parse and validate the configuration file.
+
+    Reads the required configuration values, converts them to their
+    appropriate types, verifies that all mandatory fields are present,
+    and returns the parsed configuration as a dictionary.
+    """
     rconfig: dict[str, Any] = {}
     lines: list[str] = config.split("\n")
     lines = [line for line in lines if not line.startswith("#")]
@@ -321,6 +381,12 @@ def _write_output(
     path: list[str],
     filename: str,
 ) -> None:
+    """Write the generated maze to an output file.
+
+    Stores the hexadecimal maze representation together with the entry
+    point, exit point, and solution path using the project's output
+    format.
+    """
     with open(filename, "w") as f:
         for row in grid:
             f.write("".join(format(cell, "X") for cell in row) + "\n")
@@ -331,6 +397,11 @@ def _write_output(
 
 
 def main() -> None:
+    """Run the maze generator application.
+
+    Loads the configuration file, generates and solves the maze, writes
+    the output file, and launches the interactive terminal viewer.
+    """
     if (len(sys.argv) != 2):
         print("\x1b[41mUsage: python3 a-maze-ing.py config.txt")
         exit(1)
